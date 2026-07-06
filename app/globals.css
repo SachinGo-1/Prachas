@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 216 43% 98%;
+    --foreground: 240 27% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 27% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 27% 14%;
+
+    --primary: 214 60% 26%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 216 33% 96%;
+    --secondary-foreground: 214 60% 26%;
+
+    --muted: 216 30% 95%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 24 81% 52%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 24 81% 52%;
+
+    --radius: 0.6rem;
+  }
+
+  .dark {
+    --background: 222 57% 12%;
+    --foreground: 210 40% 98%;
+
+    --card: 221 48% 16%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 221 48% 16%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 214 60% 55%;
+    --primary-foreground: 222 57% 12%;
+
+    --secondary: 221 40% 20%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 221 40% 20%;
+    --muted-foreground: 215 20% 70%;
+
+    --accent: 24 81% 55%;
+    --accent-foreground: 222 57% 12%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 221 40% 24%;
+    --input: 221 40% 24%;
+    --ring: 24 81% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Visible, brand-colored focus ring on all interactive elements */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  /* Animated dot-grid used behind the hero. Respects reduced motion. */
+  .grid-pulse-bg {
+    background-image:
+      radial-gradient(circle, rgba(232, 119, 34, 0.35) 1px, transparent 1.5px),
+      radial-gradient(circle, rgba(255, 255, 255, 0.18) 1px, transparent 1.5px);
+    background-size: 34px 34px, 34px 34px;
+    background-position: 0 0, 17px 17px;
+    animation: grid-pulse 4s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .grid-pulse-bg {
+      animation: none;
+    }
+    .animate-fade-up,
+    .animate-grid-pulse {
+      animation: none !important;
+    }
+  }
+
+  .container-tight {
+    @apply container max-w-6xl;
+  }
+}

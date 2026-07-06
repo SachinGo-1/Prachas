@@ -1,0 +1,78 @@
+// Prisma schema for Prachas Technologies
+// Dev uses SQLite. For production, switch `provider` to "postgresql"
+// and point DATABASE_URL at your Postgres instance — the models below
+// are written to be portable across both.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String // bcrypt hashed
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+}
+
+model JobPosting {
+  id           String        @id @default(cuid())
+  title        String
+  department   String
+  location     String
+  type         String // full-time, contract, part-time
+  description  String
+  requirements String
+  salaryRange  String?
+  status       String        @default("active") // active, draft, closed
+  closingDate  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  applications Application[]
+}
+
+model Application {
+  id        String     @id @default(cuid())
+  jobId     String
+  job       JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  phone     String
+  resumeUrl String
+  coverNote String?
+  status    String     @default("new") // new, reviewed, shortlisted, rejected
+  createdAt DateTime   @default(now())
+}
+
+model Inquiry {
+  id              String   @id @default(cuid())
+  name            String
+  email           String
+  company         String?
+  serviceInterest String
+  message         String
+  isRead          Boolean  @default(false)
+  isArchived      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+}
+
+model TeamMember {
+  id           String  @id @default(cuid())
+  name         String
+  role         String
+  bio          String?
+  photoUrl     String?
+  displayOrder Int     @default(0)
+}
+
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
