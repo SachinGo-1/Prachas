@@ -40,7 +40,8 @@ export function SettingsForm({ initial }: { initial: SettingsMap }) {
     { key: "twitterUrl", label: "Twitter / X URL", type: "url" },
     { key: "businessHoursIST", label: "Business hours (IST)" },
     { key: "businessHoursEST", label: "Business hours (EST)" },
-    { key: "notificationEmail", label: "Notification email", type: "email" },
+    { key: "notificationEmail", label: "Admin notification email", type: "email" },
+    { key: "ccRecipients", label: "Contact form CC (comma-separated)" },
   ];
 
   return (

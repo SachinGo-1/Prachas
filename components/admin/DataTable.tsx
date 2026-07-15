@@ -51,7 +51,7 @@ export function DataTable<T>({
           {loading ? (
             <TableRow className="hover:bg-transparent">
               <TableCell colSpan={columns.length} className="py-16">
-                <div className="flex items-center justify-center gap-2 text-brand-muted">
+                <div className="flex items-center justify-center gap-2 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin" />
                   <span>Loading…</span>
                 </div>
@@ -60,7 +60,7 @@ export function DataTable<T>({
           ) : data.length === 0 ? (
             <TableRow className="hover:bg-transparent">
               <TableCell colSpan={columns.length} className="py-16">
-                <div className="flex flex-col items-center justify-center gap-2 text-brand-muted">
+                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                   <Inbox className="h-8 w-8" />
                   <span>{emptyMessage}</span>
                 </div>

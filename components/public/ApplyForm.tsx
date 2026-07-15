@@ -11,30 +11,56 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toast";
 import { FieldError } from "@/components/public/FieldError";
+import { JOB_DEPARTMENTS } from "@/lib/constants";
 
 const MAX_RESUME_BYTES = 5 * 1024 * 1024; // 5MB
+
+const selectClass =
+  "flex h-10 w-full rounded-md border border-border bg-bg-card px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+type ApplyFormProps = {
+  jobId?: string;
+  jobTitle?: string;
+  department?: string;
+  jobs?: { id: string; title: string; department: string }[];
+  onSuccess?: () => void;
+};
 
 export function ApplyForm({
   jobId,
   jobTitle,
+  department,
+  jobs,
   onSuccess,
-}: {
-  jobId: string;
-  jobTitle: string;
-  onSuccess: () => void;
-}) {
+}: ApplyFormProps) {
   const { toast } = useToast();
   const [resume, setResume] = React.useState<File | null>(null);
   const [resumeError, setResumeError] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const isJoinMode = Array.isArray(jobs);
 
   const {
     register,
     handleSubmit,
+    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ApplicationInput>({
     resolver: zodResolver(applicationSchema),
-    defaultValues: { jobId, name: "", email: "", phone: "", coverNote: "" },
+    defaultValues: {
+      jobId: jobId ?? "",
+      name: "",
+      email: "",
+      phone: "",
+      department: department ?? "",
+      coverNote: "",
+    },
   });
+
+  // Register jobId so its value flows through react-hook-form (Join Us mode
+  // renders a select for it; modal mode keeps it as a fixed default).
+  const jobIdField = register("jobId");
 
   const validateResume = (file: File | null): boolean => {
     if (!file) {
@@ -56,29 +82,54 @@ export function ApplyForm({
   const onSubmit = async (values: ApplicationInput) => {
     if (!validateResume(resume)) return;
 
+    // The endpoint depends on whether a concrete job is targeted. In modal
+    // mode that's the fixed prop; in Join Us mode it's the selected option.
+    const currentJobId = isJoinMode ? values.jobId ?? "" : jobId ?? "";
+    const endpoint = currentJobId
+      ? `/api/jobs/${currentJobId}/apply`
+      : "/api/join-us/apply";
+
+    const roleName = currentJobId
+      ? jobs?.find((j) => j.id === currentJobId)?.title ??
+        jobTitle ??
+        "this role"
+      : "your general application";
+
     try {
       const fd = new FormData();
-      fd.append("jobId", jobId);
+      fd.append("jobId", currentJobId);
       fd.append("name", values.name);
       fd.append("email", values.email);
       fd.append("phone", values.phone);
+      fd.append("department", values.department || "");
       fd.append("coverNote", values.coverNote || "");
       fd.append("resume", resume as File);
 
-      const res = await fetch("/api/careers/apply", {
-        method: "POST",
-        body: fd,
-      });
+      const res = await fetch(endpoint, { method: "POST", body: fd });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Something went wrong");
       }
+
       toast({
         variant: "success",
         title: "Application submitted",
-        description: `Thanks for applying to ${jobTitle}. We'll be in touch.`,
+        description: `Thanks for applying — we received ${roleName} and will be in touch.`,
       });
-      onSuccess();
+
+      reset({
+        jobId: jobId ?? "",
+        name: "",
+        email: "",
+        phone: "",
+        department: department ?? "",
+        coverNote: "",
+      });
+      setResume(null);
+      setResumeError(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      onSuccess?.();
     } catch (err) {
       toast({
         variant: "error",
@@ -126,10 +177,59 @@ export function ApplyForm({
             id="ap-phone"
             {...register("phone")}
             aria-invalid={!!errors.phone}
-            placeholder="+1 555 123 4567"
+            placeholder="+91 98765 43210"
           />
           <FieldError message={errors.phone?.message} />
         </div>
+      </div>
+
+      {/* Role applying for */}
+      {isJoinMode ? (
+        <div className="space-y-2">
+          <Label htmlFor="ap-role">Role applying for</Label>
+          <select
+            id="ap-role"
+            className={selectClass}
+            {...jobIdField}
+            onChange={(e) => {
+              jobIdField.onChange(e);
+              const match = jobs?.find((j) => j.id === e.target.value);
+              if (match) setValue("department", match.department);
+            }}
+          >
+            <option value="">General Application</option>
+            {jobs?.map((j) => (
+              <option key={j.id} value={j.id}>
+                {j.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        jobId && (
+          <div className="space-y-2">
+            <Label>Role applying for</Label>
+            <p className="rounded-md border border-border bg-bg-card px-3 py-2 text-sm text-foreground">
+              {jobTitle}
+            </p>
+          </div>
+        )
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="ap-department">Department</Label>
+        <select
+          id="ap-department"
+          className={selectClass}
+          {...register("department")}
+        >
+          {JOB_DEPARTMENTS.map((d) => (
+            <option key={d} value={d}>
+              {d}
+            </option>
+          ))}
+        </select>
+        <FieldError message={errors.department?.message} />
       </div>
 
       <div className="space-y-2">
@@ -138,7 +238,7 @@ export function ApplyForm({
         </Label>
         <label
           htmlFor="ap-resume"
-          className="flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-input bg-background px-3 py-3 text-sm text-brand-muted transition-colors hover:border-brand-saffron/50"
+          className="flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-border bg-bg-card px-3 py-3 text-sm text-muted-foreground transition-colors hover:border-accent"
         >
           <Upload className="h-4 w-4" />
           <span className="truncate">
@@ -147,6 +247,7 @@ export function ApplyForm({
         </label>
         <input
           id="ap-resume"
+          ref={fileInputRef}
           type="file"
           accept="application/pdf"
           className="sr-only"
@@ -171,7 +272,12 @@ export function ApplyForm({
         <FieldError message={errors.coverNote?.message} />
       </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button
+        type="submit"
+        variant="accent"
+        className="w-full"
+        disabled={isSubmitting}
+      >
         {isSubmitting ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />

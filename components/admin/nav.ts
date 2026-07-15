@@ -1,9 +1,11 @@
 import {
   LayoutDashboard,
+  FileText,
   Briefcase,
+  ClipboardList,
+  Inbox,
+  Wrench,
   Users,
-  MessageSquare,
-  UserCog,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -16,10 +18,12 @@ export type AdminNavItem = {
 
 export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/blog", label: "Blog Posts", icon: FileText },
   { href: "/admin/jobs", label: "Job Postings", icon: Briefcase },
-  { href: "/admin/applications", label: "Applications", icon: Users },
-  { href: "/admin/inquiries", label: "Inquiries", icon: MessageSquare },
-  { href: "/admin/team", label: "Team", icon: UserCog },
+  { href: "/admin/applications", label: "Applications", icon: ClipboardList },
+  { href: "/admin/inquiries", label: "Inquiries", icon: Inbox },
+  { href: "/admin/services", label: "Services", icon: Wrench },
+  { href: "/admin/team", label: "Team Members", icon: Users },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

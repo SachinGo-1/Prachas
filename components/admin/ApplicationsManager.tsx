@@ -21,14 +21,15 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
-import { APPLICATION_STATUSES } from "@/lib/constants";
-import { formatDateTime, csvCell } from "@/lib/utils";
+import { APPLICATION_STATUSES, JOB_DEPARTMENTS } from "@/lib/constants";
+import { formatDateTime } from "@/lib/utils";
 
 type Application = {
   id: string;
   name: string;
   email: string;
   phone: string;
+  department: string | null;
   resumeUrl: string;
   coverNote: string | null;
   status: string;
@@ -46,6 +47,9 @@ const statusVariant: Record<
   rejected: "destructive",
 };
 
+const selectClass =
+  "h-9 rounded-md border border-border bg-bg-card px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
 export function ApplicationsManager({
   jobOptions,
 }: {
@@ -62,19 +66,25 @@ export function ApplicationsManager({
   const [filters, setFilters] = React.useState({
     jobId: "",
     status: "",
+    department: "",
     from: "",
     to: "",
   });
 
+  const buildParams = React.useCallback(() => {
+    const params = new URLSearchParams();
+    if (filters.jobId) params.set("jobId", filters.jobId);
+    if (filters.status) params.set("status", filters.status);
+    if (filters.department) params.set("department", filters.department);
+    if (filters.from) params.set("from", filters.from);
+    if (filters.to) params.set("to", filters.to);
+    return params;
+  }, [filters]);
+
   const load = React.useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (filters.jobId) params.set("jobId", filters.jobId);
-      if (filters.status) params.set("status", filters.status);
-      if (filters.from) params.set("from", filters.from);
-      if (filters.to) params.set("to", filters.to);
-      const res = await fetch(`/api/admin/applications?${params.toString()}`);
+      const res = await fetch(`/api/admin/applications?${buildParams().toString()}`);
       if (!res.ok) throw new Error("Failed to load");
       const data = await res.json();
       setApps(data.applications);
@@ -84,17 +94,14 @@ export function ApplicationsManager({
     } finally {
       setLoading(false);
     }
-  }, [filters, toast]);
+  }, [buildParams, toast]);
 
   React.useEffect(() => {
     load();
   }, [load]);
 
   const updateStatus = async (id: string, status: string) => {
-    // Optimistic update.
-    setApps((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status } : a))
-    );
+    setApps((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
     try {
       const res = await fetch(`/api/admin/applications/${id}`, {
         method: "PUT",
@@ -132,11 +139,8 @@ export function ApplicationsManager({
   };
 
   const toggleAll = () => {
-    if (selected.size === apps.length) {
-      setSelected(new Set());
-    } else {
-      setSelected(new Set(apps.map((a) => a.id)));
-    }
+    if (selected.size === apps.length) setSelected(new Set());
+    else setSelected(new Set(apps.map((a) => a.id)));
   };
 
   const toggleOne = (id: string) => {
@@ -148,56 +152,32 @@ export function ApplicationsManager({
     });
   };
 
+  // Download via the dedicated export endpoint (respects current filters).
   const exportCsv = () => {
-    const header = [
-      "Name",
-      "Email",
-      "Phone",
-      "Job",
-      "Status",
-      "Applied",
-      "Resume",
-    ];
-    const rows = apps.map((a) => [
-      a.name,
-      a.email,
-      a.phone,
-      a.job?.title ?? "",
-      a.status,
-      new Date(a.createdAt).toISOString(),
-      a.resumeUrl,
-    ]);
-    const csv = [header, ...rows]
-      .map((r) => r.map(csvCell).join(","))
-      .join("\r\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "applications.csv";
-    link.click();
-    URL.revokeObjectURL(url);
+    window.location.href = `/api/admin/applications/export?${buildParams().toString()}`;
   };
 
   const hasFilters =
-    filters.jobId || filters.status || filters.from || filters.to;
+    filters.jobId ||
+    filters.status ||
+    filters.department ||
+    filters.from ||
+    filters.to;
 
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="rounded-xl border bg-card p-4 shadow-sm">
-        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-brand-ink">
-          <Filter className="h-4 w-4" />
+      <div className="rounded-xl border border-border bg-bg-card p-4">
+        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
+          <Filter className="h-4 w-4 text-accent" />
           Filters
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
           <select
             aria-label="Filter by job"
             value={filters.jobId}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, jobId: e.target.value }))
-            }
-            className="h-9 rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onChange={(e) => setFilters((f) => ({ ...f, jobId: e.target.value }))}
+            className={selectClass}
           >
             <option value="">All jobs</option>
             {jobOptions.map((j) => (
@@ -207,12 +187,25 @@ export function ApplicationsManager({
             ))}
           </select>
           <select
+            aria-label="Filter by department"
+            value={filters.department}
+            onChange={(e) =>
+              setFilters((f) => ({ ...f, department: e.target.value }))
+            }
+            className={selectClass}
+          >
+            <option value="">All departments</option>
+            {JOB_DEPARTMENTS.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+          <select
             aria-label="Filter by status"
             value={filters.status}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, status: e.target.value }))
-            }
-            className="h-9 rounded-md border border-input bg-background px-2 text-sm capitalize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}
+            className={`${selectClass} capitalize`}
           >
             <option value="">All statuses</option>
             {APPLICATION_STATUSES.map((s) => (
@@ -226,14 +219,14 @@ export function ApplicationsManager({
             aria-label="From date"
             value={filters.from}
             onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))}
-            className="h-9 rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className={selectClass}
           />
           <input
             type="date"
             aria-label="To date"
             value={filters.to}
             onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))}
-            className="h-9 rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className={selectClass}
           />
           <div className="flex gap-2">
             {hasFilters && (
@@ -241,7 +234,13 @@ export function ApplicationsManager({
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  setFilters({ jobId: "", status: "", from: "", to: "" })
+                  setFilters({
+                    jobId: "",
+                    status: "",
+                    department: "",
+                    from: "",
+                    to: "",
+                  })
                 }
               >
                 <X className="h-4 w-4" />
@@ -255,19 +254,19 @@ export function ApplicationsManager({
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <p className="text-sm text-brand-muted">
+          <p className="text-sm text-muted-foreground">
             {apps.length} application{apps.length === 1 ? "" : "s"}
           </p>
           {selected.size > 0 && (
-            <div className="flex items-center gap-2 rounded-md border bg-card px-2 py-1">
-              <span className="text-xs text-brand-muted">
+            <div className="flex items-center gap-2 rounded-md border border-border bg-bg-card px-2 py-1">
+              <span className="text-xs text-muted-foreground">
                 {selected.size} selected
               </span>
               <select
                 aria-label="Bulk status"
                 value={bulkStatus}
                 onChange={(e) => setBulkStatus(e.target.value)}
-                className="h-8 rounded border border-input bg-background px-1.5 text-xs capitalize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="h-8 rounded border border-border bg-bg-card px-1.5 text-xs capitalize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <option value="">Set status…</option>
                 {APPLICATION_STATUSES.map((s) => (
@@ -278,6 +277,7 @@ export function ApplicationsManager({
               </select>
               <Button
                 size="sm"
+                variant="accent"
                 onClick={applyBulk}
                 disabled={!bulkStatus || bulkBusy}
               >
@@ -286,14 +286,19 @@ export function ApplicationsManager({
             </div>
           )}
         </div>
-        <Button variant="outline" size="sm" onClick={exportCsv} disabled={apps.length === 0}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={exportCsv}
+          disabled={apps.length === 0}
+        >
           <Download className="h-4 w-4" />
           Export CSV
         </Button>
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border bg-card shadow-sm">
+      <div className="rounded-xl border border-border bg-bg-card">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -305,7 +310,8 @@ export function ApplicationsManager({
                 />
               </TableHead>
               <TableHead>Applicant</TableHead>
-              <TableHead className="hidden md:table-cell">Job</TableHead>
+              <TableHead className="hidden md:table-cell">Applied For</TableHead>
+              <TableHead className="hidden lg:table-cell">Department</TableHead>
               <TableHead className="hidden lg:table-cell">Applied</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
@@ -313,13 +319,16 @@ export function ApplicationsManager({
           <TableBody>
             {loading ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={5} className="py-16 text-center">
-                  <Loader2 className="mx-auto h-5 w-5 animate-spin text-brand-muted" />
+                <TableCell colSpan={6} className="py-16 text-center">
+                  <Loader2 className="mx-auto h-5 w-5 animate-spin text-muted-foreground" />
                 </TableCell>
               </TableRow>
             ) : apps.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={5} className="py-16 text-center text-brand-muted">
+                <TableCell
+                  colSpan={6}
+                  className="py-16 text-center text-muted-foreground"
+                >
                   No applications match your filters.
                 </TableCell>
               </TableRow>
@@ -338,13 +347,16 @@ export function ApplicationsManager({
                     />
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium text-brand-ink">{a.name}</div>
-                    <div className="text-xs text-brand-muted">{a.email}</div>
+                    <div className="font-medium text-foreground">{a.name}</div>
+                    <div className="text-xs text-muted-foreground">{a.email}</div>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell text-brand-muted">
-                    {a.job?.title ?? "—"}
+                  <TableCell className="hidden md:table-cell text-muted-foreground">
+                    {a.job?.title ?? "General"}
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell text-brand-muted">
+                  <TableCell className="hidden lg:table-cell text-muted-foreground">
+                    {a.department ?? "—"}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell text-muted-foreground">
                     {formatDateTime(a.createdAt)}
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
@@ -359,7 +371,7 @@ export function ApplicationsManager({
                         aria-label={`Change status for ${a.name}`}
                         value={a.status}
                         onChange={(e) => updateStatus(a.id, e.target.value)}
-                        className="rounded border border-input bg-background px-1.5 py-0.5 text-xs capitalize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="rounded border border-border bg-bg-card px-1.5 py-0.5 text-xs capitalize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         {APPLICATION_STATUSES.map((s) => (
                           <option key={s} value={s}>
@@ -384,28 +396,32 @@ export function ApplicationsManager({
               <DialogHeader>
                 <DialogTitle>{detail.name}</DialogTitle>
                 <DialogDescription>
-                  Applied to {detail.job?.title ?? "—"} ·{" "}
+                  Applied for {detail.job?.title ?? "General application"} ·{" "}
                   {formatDateTime(detail.createdAt)}
                 </DialogDescription>
               </DialogHeader>
               <dl className="space-y-3 text-sm">
                 <div className="flex justify-between gap-4">
-                  <dt className="text-brand-muted">Email</dt>
+                  <dt className="text-muted-foreground">Email</dt>
                   <dd>
                     <a
                       href={`mailto:${detail.email}`}
-                      className="text-brand-navy underline-offset-4 hover:underline"
+                      className="text-accent underline-offset-4 hover:underline"
                     >
                       {detail.email}
                     </a>
                   </dd>
                 </div>
                 <div className="flex justify-between gap-4">
-                  <dt className="text-brand-muted">Phone</dt>
+                  <dt className="text-muted-foreground">Phone</dt>
                   <dd>{detail.phone}</dd>
                 </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">Department</dt>
+                  <dd>{detail.department ?? "—"}</dd>
+                </div>
                 <div className="flex items-center justify-between gap-4">
-                  <dt className="text-brand-muted">Status</dt>
+                  <dt className="text-muted-foreground">Status</dt>
                   <dd>
                     <Badge
                       variant={statusVariant[detail.status] ?? "default"}
@@ -416,13 +432,13 @@ export function ApplicationsManager({
                   </dd>
                 </div>
                 <div>
-                  <dt className="mb-1 text-brand-muted">Cover note</dt>
-                  <dd className="whitespace-pre-wrap rounded-md bg-brand-surface p-3 text-brand-ink">
+                  <dt className="mb-1 text-muted-foreground">Cover note</dt>
+                  <dd className="whitespace-pre-wrap rounded-md bg-secondary p-3 text-foreground">
                     {detail.coverNote || "—"}
                   </dd>
                 </div>
               </dl>
-              <Button asChild className="w-full">
+              <Button asChild variant="accent" className="w-full">
                 <a href={detail.resumeUrl} target="_blank" rel="noreferrer">
                   <FileText className="h-4 w-4" />
                   Download resume

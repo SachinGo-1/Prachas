@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { jobSchema, type JobInput } from "@/lib/validations";
-import { EMPLOYMENT_TYPES, JOB_STATUSES } from "@/lib/constants";
+import { EMPLOYMENT_TYPES, JOB_STATUSES, JOB_DEPARTMENTS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FieldError } from "@/components/public/FieldError";
 
 const selectClass =
-  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm capitalize ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+  "flex h-10 w-full rounded-md border border-border bg-bg-card px-3 py-2 text-sm capitalize ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
 export type JobFormValues = JobInput;
 
@@ -47,7 +47,7 @@ export function JobForm({
     resolver: zodResolver(jobSchema),
     defaultValues: {
       title: job?.title ?? "",
-      department: job?.department ?? "",
+      department: (job?.department as JobInput["department"]) ?? "Recruiting",
       location: job?.location ?? "",
       type: (job?.type as JobInput["type"]) ?? "full-time",
       description: job?.description ?? "",
@@ -73,11 +73,18 @@ export function JobForm({
           <Label htmlFor="jf-department">
             Department <span className="text-destructive">*</span>
           </Label>
-          <Input
+          <select
             id="jf-department"
+            className={selectClass}
             {...register("department")}
             aria-invalid={!!errors.department}
-          />
+          >
+            {JOB_DEPARTMENTS.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
           <FieldError message={errors.department?.message} />
         </div>
         <div className="space-y-2">
