@@ -91,9 +91,10 @@ export function LoginForm() {
         )}
       </Button>
 
-      <p className="rounded-md bg-brand-surface px-3 py-2 text-center text-xs text-brand-muted">
-        Demo credentials: <span className="font-mono">admin@prachas.com</span> /{" "}
-        <span className="font-mono">Prachas@2024</span>
+      <p className="rounded-md border border-border bg-secondary px-3 py-2 text-center text-xs text-muted-foreground">
+        Demo credentials:{" "}
+        <span className="font-mono text-accent">admin@prachas.com</span> /{" "}
+        <span className="font-mono text-accent">Prachas@2024</span>
       </p>
     </form>
   );

@@ -27,9 +27,9 @@ export function Sidebar({
       .toUpperCase() || "A";
 
   return (
-    <div className="flex h-full flex-col bg-brand-dark text-slate-300">
-      <div className="flex h-16 items-center border-b border-white/10 px-5">
-        <Logo variant="light" />
+    <div className="flex h-full flex-col border-r border-border bg-[#0D0D0D] text-muted-foreground">
+      <div className="flex h-20 items-center border-b border-border px-5">
+        <Logo variant="horizontal" />
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-3" aria-label="Admin">
@@ -46,12 +46,18 @@ export function Sidebar({
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-saffron",
+                "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 active
-                  ? "bg-brand-saffron/15 text-white"
-                  : "text-slate-400 hover:bg-white/5 hover:text-white"
+                  ? "bg-accent/10 text-accent"
+                  : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
               )}
             >
+              {active && (
+                <span
+                  className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-accent"
+                  aria-hidden
+                />
+              )}
               <Icon className="h-5 w-5 shrink-0" />
               {item.label}
             </Link>
@@ -59,32 +65,32 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="border-t border-white/10 p-3">
+      <div className="border-t border-border p-3">
         <Link
           href="/"
           target="_blank"
-          className="mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
+          className="mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
         >
           <ExternalLink className="h-4 w-4" />
           View public site
         </Link>
         <div className="flex items-center gap-3 rounded-lg px-3 py-2">
           <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-brand-saffron text-white">
+            <AvatarFallback className="bg-accent text-accent-foreground">
               {initials}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-white">
+            <p className="truncate text-sm font-medium text-foreground">
               {user.name || "Admin"}
             </p>
-            <p className="truncate text-xs text-slate-400">{user.email}</p>
+            <p className="truncate text-xs text-muted-foreground">{user.email}</p>
           </div>
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/admin/login" })}
             aria-label="Sign out"
-            className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-saffron"
+            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <LogOut className="h-4 w-4" />
           </button>

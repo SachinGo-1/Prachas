@@ -28,29 +28,29 @@ export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b bg-background/90 px-4 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-bg-raised/90 px-4 backdrop-blur sm:px-6">
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onMenuClick}
-          className="rounded-md p-2 text-brand-navy lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="rounded-md p-2 text-foreground lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-semibold text-brand-ink">{title}</h1>
+        <h1 className="font-display text-lg font-semibold text-foreground">
+          {title}
+        </h1>
       </div>
 
       <Link
         href="/admin/inquiries"
-        className="relative rounded-md p-2 text-brand-muted transition-colors hover:text-brand-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        aria-label={
-          unread ? `${unread} unread inquiries` : "Notifications"
-        }
+        className="relative rounded-md p-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-label={unread ? `${unread} unread inquiries` : "Notifications"}
       >
         <Bell className="h-5 w-5" />
         {unread ? (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-saffron px-1 text-[10px] font-bold text-white">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
             {unread > 9 ? "9+" : unread}
           </span>
         ) : null}

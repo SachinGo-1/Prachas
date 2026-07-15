@@ -99,7 +99,7 @@ export function InquiriesManager() {
     <div className="space-y-4">
       {/* Filters */}
       <div className="rounded-xl border bg-card p-4 shadow-sm">
-        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-brand-ink">
+        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
           <Filter className="h-4 w-4" />
           Filters
         </div>
@@ -161,7 +161,7 @@ export function InquiriesManager() {
         </div>
       </div>
 
-      <p className="text-sm text-brand-muted">
+      <p className="text-sm text-muted-foreground">
         {inquiries.length} {inquiries.length === 1 ? "inquiry" : "inquiries"}
       </p>
 
@@ -180,12 +180,12 @@ export function InquiriesManager() {
             {loading ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={5} className="py-16 text-center">
-                  <Loader2 className="mx-auto h-5 w-5 animate-spin text-brand-muted" />
+                  <Loader2 className="mx-auto h-5 w-5 animate-spin text-muted-foreground" />
                 </TableCell>
               </TableRow>
             ) : inquiries.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={5} className="py-16 text-center text-brand-muted">
+                <TableCell colSpan={5} className="py-16 text-center text-muted-foreground">
                   No inquiries match your filters.
                 </TableCell>
               </TableRow>
@@ -200,7 +200,7 @@ export function InquiriesManager() {
                     <div className="flex items-center gap-2">
                       {!inq.isRead && (
                         <span
-                          className="h-2 w-2 shrink-0 rounded-full bg-brand-saffron"
+                          className="h-2 w-2 shrink-0 rounded-full bg-accent"
                           aria-label="Unread"
                         />
                       )}
@@ -208,25 +208,25 @@ export function InquiriesManager() {
                         <div
                           className={
                             inq.isRead
-                              ? "text-brand-ink"
-                              : "font-semibold text-brand-ink"
+                              ? "text-foreground"
+                              : "font-semibold text-foreground"
                           }
                         >
                           {inq.name}
                         </div>
-                        <div className="text-xs text-brand-muted">
+                        <div className="text-xs text-muted-foreground">
                           {inq.email}
                         </div>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell text-brand-muted">
+                  <TableCell className="hidden md:table-cell text-muted-foreground">
                     {inq.company || "—"}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
                     <Badge variant="secondary">{inq.serviceInterest}</Badge>
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell text-brand-muted">
+                  <TableCell className="hidden lg:table-cell text-muted-foreground">
                     {formatDateTime(inq.createdAt)}
                   </TableCell>
                   <TableCell className="text-right">
@@ -261,13 +261,13 @@ export function InquiriesManager() {
               <div className="space-y-1 text-sm">
                 <a
                   href={`mailto:${detail.email}`}
-                  className="text-brand-navy underline-offset-4 hover:underline"
+                  className="text-accent underline-offset-4 hover:underline"
                 >
                   {detail.email}
                 </a>
               </div>
 
-              <div className="whitespace-pre-wrap rounded-md bg-brand-surface p-4 text-sm text-brand-ink">
+              <div className="whitespace-pre-wrap rounded-md bg-secondary p-4 text-sm text-foreground">
                 {detail.message}
               </div>
 

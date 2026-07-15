@@ -17,16 +17,13 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // Brand palette
-        brand: {
-          navy: "#1B3A6B",
-          saffron: "#E87722",
-          surface: "#F7F9FC",
-          dark: "#0F1F3D",
-          ink: "#1A1A2E",
-          muted: "#64748B",
-        },
-        // shadcn/ui semantic tokens (mapped to CSS variables)
+        // ---- Flat brand tokens (spec-mandated class names) ----
+        bg: "#111111",
+        "bg-card": "#1A1A1A",
+        "bg-raised": "#222222",
+        "border-accent": "#00E676",
+
+        // ---- shadcn/ui semantic tokens (HSL vars from globals.css) ----
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -48,10 +45,6 @@ const config: Config = {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -60,15 +53,37 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Lime accent — flat hex so `bg-accent`/`text-accent`/`border-accent`
+        // read as the brand green, with a dark foreground for filled CTAs.
+        accent: {
+          DEFAULT: "#00E676",
+          dim: "#00B85A",
+          glow: "rgba(0, 230, 118, 0.15)",
+          foreground: "#111111",
+        },
       },
       fontFamily: {
+        display: ["var(--font-poppins)", "system-ui", "sans-serif"],
+        body: ["var(--font-inter)", "system-ui", "sans-serif"],
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         mono: ["var(--font-jetbrains-mono)", "monospace"],
+      },
+      fontSize: {
+        hero: ["clamp(3rem, 7vw, 6rem)", { lineHeight: "1.02" }],
+        display: ["clamp(2rem, 4vw, 3.5rem)", { lineHeight: "1.08" }],
+        section: ["clamp(1.5rem, 3vw, 2.5rem)", { lineHeight: "1.15" }],
+      },
+      letterSpacing: {
+        label: "0.1em",
+        wider2: "0.2em",
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        glow: "0 0 24px 0 rgba(0, 230, 118, 0.18)",
       },
       keyframes: {
         "accordion-down": {
@@ -79,20 +94,22 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "grid-pulse": {
-          "0%, 100%": { opacity: "0.25" },
-          "50%": { opacity: "0.6" },
+        scanline: {
+          "0%": { top: "0%", opacity: "0" },
+          "10%": { opacity: "1" },
+          "80%": { opacity: "0.6" },
+          "100%": { top: "60%", opacity: "0" },
         },
         "fade-up": {
-          from: { opacity: "0", transform: "translateY(12px)" },
+          from: { opacity: "0", transform: "translateY(14px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "grid-pulse": "grid-pulse 4s ease-in-out infinite",
-        "fade-up": "fade-up 0.5s ease-out both",
+        scanline: "scanline 2.5s ease-out forwards",
+        "fade-up": "fade-up 0.6s ease-out both",
       },
     },
   },

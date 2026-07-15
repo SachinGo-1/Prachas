@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { contactSchema } from "@/lib/validations";
 import { sendEmail, inquiryNotificationHtml } from "@/lib/email";
-import { getNotificationEmail } from "@/lib/settings";
+import { getSettings } from "@/lib/settings";
 
 export async function POST(req: Request) {
   let body: unknown;
@@ -28,17 +28,19 @@ export async function POST(req: Request) {
         name: data.name,
         email: data.email,
         company: data.company || null,
+        phone: data.phone || null,
         serviceInterest: data.serviceInterest,
         message: data.message,
       },
     });
 
-    const to = await getNotificationEmail();
+    const settings = await getSettings();
     await sendEmail({
-      to,
+      to: settings.notificationEmail,
+      cc: settings.ccRecipients || undefined,
       replyTo: data.email,
       subject: `New inquiry: ${data.serviceInterest} — ${data.name}`,
-      html: inquiryNotificationHtml(data),
+      html: inquiryNotificationHtml({ ...data, phone: data.phone || null }),
     });
 
     return NextResponse.json({ ok: true, id: inquiry.id }, { status: 201 });

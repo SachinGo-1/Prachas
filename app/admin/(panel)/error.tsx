@@ -20,10 +20,10 @@ export default function AdminError({
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10 text-destructive">
         <AlertTriangle className="h-7 w-7" />
       </div>
-      <h2 className="mt-5 text-xl font-semibold text-brand-ink">
+      <h2 className="mt-5 text-xl font-semibold text-foreground">
         Something went wrong
       </h2>
-      <p className="mt-2 max-w-md text-sm text-brand-muted">
+      <p className="mt-2 max-w-md text-sm text-muted-foreground">
         An unexpected error occurred while loading this page. You can try again,
         and if the problem persists, check the server logs.
       </p>

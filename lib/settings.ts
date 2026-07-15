@@ -8,8 +8,9 @@ export const DEFAULT_SETTINGS = {
   linkedinUrl: SITE.linkedin,
   twitterUrl: "",
   businessHoursIST: "Mon–Fri, 9:30 AM – 6:30 PM IST",
-  businessHoursEST: "Mon–Fri, 11:00 PM – 8:00 AM EST",
+  businessHoursEST: "Mon–Fri, 11:00 PM – 8:00 AM ET",
   notificationEmail: process.env.ADMIN_EMAIL || "admin@prachas.com",
+  ccRecipients: "",
 };
 
 export type SettingsMap = typeof DEFAULT_SETTINGS;
