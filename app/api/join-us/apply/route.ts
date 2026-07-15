@@ -4,7 +4,11 @@ import path from "path";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { applicationSchema } from "@/lib/validations";
-import { sendEmail, applicationNotificationHtml } from "@/lib/email";
+import {
+  sendEmail,
+  applicationNotificationHtml,
+  applicantConfirmationHtml,
+} from "@/lib/email";
 import { getNotificationEmail } from "@/lib/settings";
 
 export const runtime = "nodejs";
@@ -22,11 +26,14 @@ export async function POST(req: Request) {
     );
   }
 
+  const rawJobId = String(form.get("jobId") || "");
+
   const fields = {
-    jobId: String(form.get("jobId") || ""),
+    jobId: rawJobId,
     name: String(form.get("name") || ""),
     email: String(form.get("email") || ""),
     phone: String(form.get("phone") || ""),
+    department: String(form.get("department") || ""),
     coverNote: String(form.get("coverNote") || ""),
   };
 
@@ -58,61 +65,79 @@ export async function POST(req: Request) {
     );
   }
 
-  // Ensure the job exists (and is open) before accepting the application.
-  const job = await prisma.jobPosting.findUnique({
-    where: { id: parsed.data.jobId },
-  });
-  if (!job) {
-    return NextResponse.json(
-      { error: "This position is no longer available." },
-      { status: 404 }
-    );
+  // Optional job target: verify it exists and derive its details when set.
+  let jobId: string | null = null;
+  let jobTitle = "General Application";
+  let department = parsed.data.department || "";
+
+  if (rawJobId) {
+    const job = await prisma.jobPosting.findUnique({
+      where: { id: rawJobId },
+    });
+    if (!job) {
+      return NextResponse.json(
+        { error: "This position is no longer available." },
+        { status: 404 }
+      );
+    }
+    jobId = job.id;
+    jobTitle = job.title;
+    department = parsed.data.department || job.department;
   }
 
   try {
     const uploadDir = path.join(process.cwd(), "public", "uploads");
     await mkdir(uploadDir, { recursive: true });
 
-    const safeName = (parsed.data.name || "resume")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 40);
-    const filename = `${safeName || "resume"}-${randomUUID()}.pdf`;
-
+    const filename = `${randomUUID()}.pdf`;
     const bytes = Buffer.from(await resume.arrayBuffer());
     await writeFile(path.join(uploadDir, filename), bytes);
     const resumeUrl = `/uploads/${filename}`;
 
     const application = await prisma.application.create({
       data: {
-        jobId: parsed.data.jobId,
+        jobId,
         name: parsed.data.name,
         email: parsed.data.email,
         phone: parsed.data.phone,
+        department: department || null,
         coverNote: parsed.data.coverNote || null,
         resumeUrl,
       },
     });
 
-    const to = await getNotificationEmail();
-    await sendEmail({
-      to,
-      replyTo: parsed.data.email,
-      subject: `New application: ${job.title} — ${parsed.data.name}`,
-      html: applicationNotificationHtml({
-        ...parsed.data,
-        jobTitle: job.title,
-        resumeUrl,
-      }),
-    });
+    // Notifications must never break the submission response.
+    try {
+      const to = await getNotificationEmail();
+      await sendEmail({
+        to,
+        replyTo: parsed.data.email,
+        subject: `New application: ${jobTitle} — ${parsed.data.name}`,
+        html: applicationNotificationHtml({
+          name: parsed.data.name,
+          email: parsed.data.email,
+          phone: parsed.data.phone,
+          jobTitle,
+          department,
+          coverNote: parsed.data.coverNote,
+          resumeUrl,
+        }),
+      });
+      await sendEmail({
+        to: parsed.data.email,
+        subject: "We received your application — Prachas Technologies",
+        html: applicantConfirmationHtml({
+          name: parsed.data.name,
+          jobTitle,
+        }),
+      });
+    } catch (mailErr) {
+      console.error("[join-us/apply] email failed:", mailErr);
+    }
 
-    return NextResponse.json(
-      { ok: true, id: application.id },
-      { status: 201 }
-    );
+    return NextResponse.json({ ok: true, id: application.id }, { status: 201 });
   } catch (err) {
-    console.error("[apply] failed:", err);
+    console.error("[join-us/apply] failed:", err);
     return NextResponse.json(
       { error: "Could not submit your application. Please try again." },
       { status: 500 }

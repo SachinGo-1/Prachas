@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Linkedin } from "lucide-react";
 import { SectionHeading } from "@/components/public/SectionHeading";
 import { ContactForm } from "@/components/public/ContactForm";
 import { getSettings } from "@/lib/settings";
@@ -15,106 +15,25 @@ export const dynamic = "force-dynamic";
 export default async function ContactPage() {
   const settings = await getSettings();
 
-  const mapSrc =
-    "https://www.google.com/maps?q=HITEC+City,+Hyderabad,+Telangana,+India&output=embed";
-
   return (
     <>
-      <section className="border-b bg-brand-surface">
-        <div className="container py-16 sm:py-20">
-          <SectionHeading
-            eyebrow="Contact"
-            title="Let's start a conversation"
-            description="Fill out the form and our team will get back to you within one business day."
-          />
-        </div>
+      <section className="container pt-20 sm:pt-24">
+        <SectionHeading
+          eyebrow="Contact"
+          title="Let's start a conversation"
+          description="Fill out the form and our team will get back to you within one business day."
+        />
       </section>
 
       <section className="container py-16 sm:py-20">
-        <div className="grid gap-12 lg:grid-cols-5">
-          {/* Left: contact details */}
-          <div className="lg:col-span-2">
-            <h2 className="text-xl font-semibold text-brand-ink">
-              Reach us directly
-            </h2>
-            <ul className="mt-6 space-y-5">
-              <li className="flex items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-navy/5 text-brand-navy">
-                  <MapPin className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-brand-ink">Office</p>
-                  <p className="text-sm text-brand-muted">
-                    {settings.companyAddress}
-                  </p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-navy/5 text-brand-navy">
-                  <Phone className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-brand-ink">Phone</p>
-                  <a
-                    href={`tel:${settings.companyPhone.replace(/\s+/g, "")}`}
-                    className="text-sm text-brand-muted underline-offset-4 hover:text-brand-navy hover:underline"
-                  >
-                    {settings.companyPhone}
-                  </a>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-navy/5 text-brand-navy">
-                  <Mail className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-brand-ink">Email</p>
-                  <a
-                    href={`mailto:${settings.companyEmail}`}
-                    className="text-sm text-brand-muted underline-offset-4 hover:text-brand-navy hover:underline"
-                  >
-                    {settings.companyEmail}
-                  </a>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-navy/5 text-brand-navy">
-                  <Clock className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-brand-ink">
-                    Business hours
-                  </p>
-                  <p className="text-sm text-brand-muted">
-                    {settings.businessHoursIST}
-                  </p>
-                  <p className="text-sm text-brand-muted">
-                    {settings.businessHoursEST}
-                  </p>
-                </div>
-              </li>
-            </ul>
-
-            <div className="mt-8 overflow-hidden rounded-xl border">
-              <iframe
-                title="Prachas Technologies location — Hyderabad, India"
-                src={mapSrc}
-                width="100%"
-                height="260"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="block w-full border-0"
-              />
-            </div>
-          </div>
-
-          {/* Right: form */}
+        <div className="grid gap-8 lg:grid-cols-5">
+          {/* Left: form */}
           <div className="lg:col-span-3">
-            <div className="rounded-2xl border bg-card p-6 shadow-sm sm:p-8">
-              <h2 className="text-xl font-semibold text-brand-ink">
+            <div className="rounded-2xl border border-border bg-bg-card p-6 sm:p-8">
+              <h2 className="font-display text-xl font-semibold text-foreground">
                 Send us a message
               </h2>
-              <p className="mt-1 text-sm text-brand-muted">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Fields marked <span className="text-destructive">*</span> are
                 required.
               </p>
@@ -123,6 +42,112 @@ export default async function ContactPage() {
               </div>
             </div>
           </div>
+
+          {/* Right: info panel */}
+          <div className="lg:col-span-2">
+            <div className="rounded-2xl border border-border bg-bg-card p-6 sm:p-8">
+              <h2 className="font-display text-xl font-semibold text-foreground">
+                Reach us directly
+              </h2>
+              <ul className="mt-6 space-y-6">
+                <li className="flex items-start gap-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                    <MapPin className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="font-mono text-xs uppercase tracking-label text-muted-foreground">
+                      Office
+                    </p>
+                    <p className="mt-1 text-foreground">
+                      {settings.companyAddress}
+                    </p>
+                  </div>
+                </li>
+
+                <li className="flex items-start gap-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                    <Phone className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="font-mono text-xs uppercase tracking-label text-muted-foreground">
+                      Phone
+                    </p>
+                    <a
+                      href={`tel:${settings.companyPhone.replace(/\s+/g, "")}`}
+                      className="mt-1 block text-foreground transition-colors hover:text-accent"
+                    >
+                      {settings.companyPhone}
+                    </a>
+                  </div>
+                </li>
+
+                <li className="flex items-start gap-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                    <Mail className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="font-mono text-xs uppercase tracking-label text-muted-foreground">
+                      Email
+                    </p>
+                    <a
+                      href={`mailto:${settings.companyEmail}`}
+                      className="mt-1 block text-foreground transition-colors hover:text-accent"
+                    >
+                      {settings.companyEmail}
+                    </a>
+                  </div>
+                </li>
+
+                <li className="flex items-start gap-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                    <Clock className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="font-mono text-xs uppercase tracking-label text-muted-foreground">
+                      Business hours
+                    </p>
+                    <p className="mt-1 text-foreground">
+                      {settings.businessHoursIST}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {settings.businessHoursEST}
+                    </p>
+                  </div>
+                </li>
+
+                {settings.linkedinUrl && (
+                  <li className="flex items-start gap-4">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                      <Linkedin className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <p className="font-mono text-xs uppercase tracking-label text-muted-foreground">
+                        LinkedIn
+                      </p>
+                      <a
+                        href={settings.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 block text-foreground transition-colors hover:text-accent"
+                      >
+                        Follow us on LinkedIn
+                      </a>
+                    </div>
+                  </li>
+                )}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Map — full width under the two columns */}
+        <div className="mt-8">
+          <iframe
+            src="https://maps.google.com/maps?q=Hyderabad,India&output=embed"
+            className="h-72 w-full rounded-xl border border-border"
+            loading="lazy"
+            title="Prachas Hyderabad location"
+          />
         </div>
       </section>
     </>

@@ -1,114 +1,94 @@
-"use client";
-
-import * as React from "react";
 import Link from "next/link";
 import { Check, ArrowRight } from "lucide-react";
-import { SERVICES } from "@/lib/constants";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { SERVICE_ICONS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
-export function ServicesView() {
-  const [active, setActive] = React.useState(SERVICES[0].slug);
+export type ServiceView = {
+  slug: string;
+  title: string;
+  shortDesc: string;
+  longDesc: string;
+  benefits: string[];
+  industries: string[];
+};
 
-  // Sync the active tab with the URL hash (e.g. /services#bpo).
-  React.useEffect(() => {
-    const applyHash = () => {
-      const hash = window.location.hash.replace("#", "");
-      if (hash && SERVICES.some((s) => s.slug === hash)) {
-        setActive(hash);
-      }
-    };
-    applyHash();
-    window.addEventListener("hashchange", applyHash);
-    return () => window.removeEventListener("hashchange", applyHash);
-  }, []);
-
-  const onValueChange = (value: string) => {
-    setActive(value);
-    if (typeof window !== "undefined") {
-      window.history.replaceState(null, "", `#${value}`);
-    }
-  };
-
+export function ServicesView({ services }: { services: ServiceView[] }) {
   return (
-    <Tabs value={active} onValueChange={onValueChange} className="mt-12">
-      <div className="overflow-x-auto pb-2">
-        <TabsList className="flex w-max flex-nowrap gap-1">
-          {SERVICES.map((service) => (
-            <TabsTrigger key={service.slug} value={service.slug}>
-              {service.title}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </div>
+    <div>
+      {services.map((service, i) => {
+        const Icon = SERVICE_ICONS[service.slug];
+        const reversed = i % 2 === 1;
 
-      {SERVICES.map((service) => {
-        const Icon = service.icon;
         return (
-          <TabsContent
+          <section
             key={service.slug}
-            value={service.slug}
             id={service.slug}
-            className="scroll-mt-24"
+            className={cn(
+              "scroll-mt-24 py-16 sm:py-20",
+              i > 0 && "border-t border-border"
+            )}
           >
-            <div className="grid gap-10 rounded-2xl border bg-card p-6 sm:p-10 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-brand-navy/5 text-brand-navy">
+            <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
+              {/* Text block */}
+              <div className={cn(reversed && "lg:order-2")}>
+                {Icon && (
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <Icon className="h-7 w-7" />
                   </div>
-                  <h2 className="text-2xl font-bold text-brand-ink">
-                    {service.title}
-                  </h2>
+                )}
+                <h2 className="mt-6 font-display text-section font-bold tracking-tight text-foreground">
+                  {service.title}
+                </h2>
+                <div className="markdown mt-5">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {service.longDesc}
+                  </ReactMarkdown>
                 </div>
-                <p className="mt-6 leading-relaxed text-brand-muted">
-                  {service.description}
-                </p>
-
-                <h3 className="mt-8 text-sm font-semibold uppercase tracking-wide text-brand-navy">
-                  Key benefits
-                </h3>
-                <ul className="mt-4 space-y-3">
-                  {service.benefits.map((benefit) => (
-                    <li key={benefit} className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-saffron/15 text-brand-saffron">
-                        <Check className="h-3.5 w-3.5" />
-                      </span>
-                      <span className="text-sm text-brand-ink">{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
+                <Link
+                  href="/contact"
+                  className="mt-8 inline-flex items-center gap-2 font-mono text-sm font-medium uppercase tracking-label text-accent transition-colors hover:text-accent-dim"
+                >
+                  Discuss this service
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
 
-              <div className="lg:border-l lg:pl-10">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-brand-navy">
-                  Industries served
-                </h3>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {service.industries.map((industry) => (
-                    <Badge key={industry} variant="secondary">
-                      {industry}
-                    </Badge>
-                  ))}
-                </div>
-
-                <div className="mt-8 rounded-xl bg-brand-surface p-5">
-                  <p className="text-sm text-brand-muted">
-                    Interested in {service.title.toLowerCase()}?
+              {/* Detail block */}
+              <div className={cn(reversed && "lg:order-1")}>
+                <div className="rounded-2xl border border-border bg-bg-card p-8">
+                  <p className="font-mono text-xs font-medium uppercase tracking-label text-accent">
+                    Key benefits
                   </p>
-                  <Button asChild variant="accent" className="mt-3 w-full">
-                    <Link href="/contact">
-                      Talk to us
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
+                  <ul className="mt-5 space-y-4">
+                    {service.benefits.map((benefit) => (
+                      <li key={benefit} className="flex items-start gap-3">
+                        <Check className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+                        <span className="text-foreground/90">{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <p className="mt-8 font-mono text-xs font-medium uppercase tracking-label text-accent">
+                    Industries served
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {service.industries.map((industry) => (
+                      <span
+                        key={industry}
+                        className="rounded-full border border-border bg-bg-raised px-3 py-1 text-xs text-muted-foreground"
+                      >
+                        {industry}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </TabsContent>
+          </section>
         );
       })}
-    </Tabs>
+    </div>
   );
 }

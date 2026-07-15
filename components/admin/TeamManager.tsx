@@ -78,7 +78,7 @@ export function TeamManager({ members }: { members: TeamMember[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-brand-muted">
+        <p className="text-sm text-muted-foreground">
           {members.length} team member{members.length === 1 ? "" : "s"} · shown
           on the public About page
         </p>
@@ -89,7 +89,7 @@ export function TeamManager({ members }: { members: TeamMember[] }) {
       </div>
 
       {members.length === 0 ? (
-        <div className="rounded-xl border border-dashed bg-card p-12 text-center text-brand-muted">
+        <div className="rounded-xl border border-dashed bg-card p-12 text-center text-muted-foreground">
           No team members yet. Add one to populate the About page.
         </div>
       ) : (
@@ -102,15 +102,15 @@ export function TeamManager({ members }: { members: TeamMember[] }) {
                   <AvatarFallback>{initials(m.name)}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-brand-ink">{m.name}</p>
-                  <p className="text-sm text-brand-saffron">{m.role}</p>
-                  <p className="mt-0.5 font-mono text-xs text-brand-muted">
+                  <p className="font-semibold text-foreground">{m.name}</p>
+                  <p className="text-sm text-accent">{m.role}</p>
+                  <p className="mt-0.5 font-mono text-xs text-muted-foreground">
                     Order: {m.displayOrder}
                   </p>
                 </div>
               </div>
               {m.bio && (
-                <p className="mt-3 line-clamp-3 text-sm text-brand-muted">
+                <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">
                   {m.bio}
                 </p>
               )}
@@ -175,7 +175,7 @@ export function TeamManager({ members }: { members: TeamMember[] }) {
             <DialogTitle>Remove team member?</DialogTitle>
             <DialogDescription>
               This will remove{" "}
-              <span className="font-medium text-brand-ink">
+              <span className="font-medium text-foreground">
                 {deleteTarget?.name}
               </span>{" "}
               from the About page. This cannot be undone.

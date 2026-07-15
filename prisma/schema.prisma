@@ -21,16 +21,32 @@ model User {
   createdAt DateTime @default(now())
 }
 
+model BlogPost {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  category    String // Recruiting | HR | Technology | Industry News
+  excerpt     String
+  body        String // markdown
+  coverImage  String?
+  author      String
+  tags        String    @default("") // comma-separated
+  status      String    @default("draft") // draft | published
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
 model JobPosting {
   id           String        @id @default(cuid())
   title        String
   department   String
   location     String
-  type         String // full-time, contract, part-time
+  type         String // full-time | part-time | contract
   description  String
   requirements String
   salaryRange  String?
-  status       String        @default("active") // active, draft, closed
+  status       String        @default("active") // active | draft | closed
   closingDate  DateTime?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -38,16 +54,18 @@ model JobPosting {
 }
 
 model Application {
-  id        String     @id @default(cuid())
-  jobId     String
-  job       JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  name      String
-  email     String
-  phone     String
-  resumeUrl String
-  coverNote String?
-  status    String     @default("new") // new, reviewed, shortlisted, rejected
-  createdAt DateTime   @default(now())
+  id         String      @id @default(cuid())
+  jobId      String? // null for general (Join Us) applications
+  job        JobPosting? @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  name       String
+  email      String
+  phone      String
+  department String?
+  resumeUrl  String
+  coverNote  String?
+  status     String      @default("new") // new | reviewed | shortlisted | rejected
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 }
 
 model Inquiry {
@@ -55,11 +73,23 @@ model Inquiry {
   name            String
   email           String
   company         String?
+  phone           String?
   serviceInterest String
   message         String
   isRead          Boolean  @default(false)
   isArchived      Boolean  @default(false)
   createdAt       DateTime @default(now())
+}
+
+model Service {
+  id           String @id @default(cuid())
+  slug         String @unique
+  title        String
+  shortDesc    String
+  longDesc     String // markdown
+  benefits     String // JSON array of strings
+  industries   String // comma-separated
+  displayOrder Int    @default(0)
 }
 
 model TeamMember {

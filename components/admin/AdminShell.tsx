@@ -15,7 +15,7 @@ export function AdminShell({
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen bg-brand-surface">
+    <div className="min-h-screen bg-bg">
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 lg:block">
         <Sidebar user={user} />
@@ -25,7 +25,7 @@ export function AdminShell({
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/60"
             onClick={() => setMobileOpen(false)}
             aria-hidden
           />

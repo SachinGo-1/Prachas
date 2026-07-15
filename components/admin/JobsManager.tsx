@@ -139,7 +139,7 @@ export function JobsManager({ jobs }: { jobs: JobRow[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-brand-muted">
+        <p className="text-sm text-muted-foreground">
           {jobs.length} {jobs.length === 1 ? "posting" : "postings"}
         </p>
         <Button size="sm" onClick={openCreate}>
@@ -164,7 +164,7 @@ export function JobsManager({ jobs }: { jobs: JobRow[] }) {
           <TableBody>
             {jobs.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={7} className="py-12 text-center text-brand-muted">
+                <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
                   No job postings yet. Click “Post Job” to create one.
                 </TableCell>
               </TableRow>
@@ -172,15 +172,15 @@ export function JobsManager({ jobs }: { jobs: JobRow[] }) {
               jobs.map((job) => (
                 <TableRow key={job.id}>
                   <TableCell>
-                    <div className="font-medium text-brand-ink">{job.title}</div>
-                    <div className="text-xs capitalize text-brand-muted">
+                    <div className="font-medium text-foreground">{job.title}</div>
+                    <div className="text-xs capitalize text-muted-foreground">
                       {job.type}
                     </div>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell text-brand-muted">
+                  <TableCell className="hidden md:table-cell text-muted-foreground">
                     {job.department}
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell text-brand-muted">
+                  <TableCell className="hidden lg:table-cell text-muted-foreground">
                     {job.location}
                   </TableCell>
                   <TableCell>
@@ -206,7 +206,7 @@ export function JobsManager({ jobs }: { jobs: JobRow[] }) {
                       ))}
                     </select>
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell text-brand-muted">
+                  <TableCell className="hidden sm:table-cell text-muted-foreground">
                     {formatDate(job.createdAt)}
                   </TableCell>
                   <TableCell className="text-center font-mono">
@@ -276,7 +276,7 @@ export function JobsManager({ jobs }: { jobs: JobRow[] }) {
             <DialogTitle>Delete job posting?</DialogTitle>
             <DialogDescription>
               This will permanently delete{" "}
-              <span className="font-medium text-brand-ink">
+              <span className="font-medium text-foreground">
                 {deleteTarget?.title}
               </span>{" "}
               and all {deleteTarget?.applicantCount} of its applications. This

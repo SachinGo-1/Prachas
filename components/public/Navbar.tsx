@@ -26,33 +26,33 @@ export function Navbar() {
     setOpen(false);
   }, [pathname]);
 
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 w-full border-b transition-colors",
-        scrolled
-          ? "border-border bg-background/90 backdrop-blur"
-          : "border-transparent bg-background"
+        "sticky top-0 z-40 w-full border-b transition-colors duration-300",
+        scrolled || open
+          ? "border-border bg-bg-raised/95 backdrop-blur"
+          : "border-transparent bg-transparent"
       )}
     >
       <nav
-        className="container flex h-16 items-center justify-between"
+        className="container flex h-20 items-center justify-between"
         aria-label="Primary"
       >
         <Link
           href="/"
           className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label={`${"Prachas"} home`}
+          aria-label="Prachas Technologies home"
         >
-          <Logo />
+          <Logo variant="horizontal" />
         </Link>
 
         <div className="hidden items-center gap-1 md:flex">
           {NAV_LINKS.map((link) => {
-            const active =
-              link.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(link.href);
+            const active = isActive(link.href);
             return (
               <Link
                 key={link.href}
@@ -61,8 +61,8 @@ export function Navbar() {
                 className={cn(
                   "rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   active
-                    ? "text-brand-navy"
-                    : "text-brand-muted hover:text-brand-navy"
+                    ? "text-accent"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {link.label}
@@ -72,14 +72,14 @@ export function Navbar() {
         </div>
 
         <div className="hidden md:block">
-          <Button asChild variant="accent" size="sm">
-            <Link href="/contact">Get in Touch</Link>
+          <Button asChild variant="accentOutline" size="sm">
+            <Link href="/join-us">Join Us</Link>
           </Button>
         </div>
 
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-md p-2 text-brand-navy md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="inline-flex items-center justify-center rounded-md p-2 text-foreground md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label={open ? "Close menu" : "Open menu"}
@@ -89,32 +89,33 @@ export function Navbar() {
         </button>
       </nav>
 
+      {/* Full-screen mobile overlay menu */}
       {open && (
-        <div id="mobile-menu" className="border-t bg-background md:hidden">
-          <div className="container flex flex-col gap-1 py-3">
+        <div
+          id="mobile-menu"
+          className="fixed inset-0 top-20 z-40 border-t border-border bg-bg/98 backdrop-blur md:hidden"
+        >
+          <div className="container flex flex-col gap-1 py-6">
             {NAV_LINKS.map((link) => {
-              const active =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href);
+              const active = isActive(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "rounded-md px-3 py-2 text-base font-medium",
+                    "rounded-md px-3 py-3 text-lg font-medium transition-colors",
                     active
-                      ? "bg-secondary text-brand-navy"
-                      : "text-brand-muted hover:bg-secondary hover:text-brand-navy"
+                      ? "bg-bg-card text-accent"
+                      : "text-muted-foreground hover:bg-bg-card hover:text-foreground"
                   )}
                 >
                   {link.label}
                 </Link>
               );
             })}
-            <Button asChild variant="accent" className="mt-2">
-              <Link href="/contact">Get in Touch</Link>
+            <Button asChild variant="accent" className="mt-4">
+              <Link href="/join-us">Join Us</Link>
             </Button>
           </div>
         </div>

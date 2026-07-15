@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Send } from "lucide-react";
@@ -26,6 +25,7 @@ export function ContactForm() {
       name: "",
       email: "",
       company: "",
+      phone: "",
       serviceInterest: "",
       message: "",
     },
@@ -94,43 +94,50 @@ export function ContactForm() {
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="company">Company</Label>
-          <Input
-            id="company"
-            {...register("company")}
-            placeholder="Acme Inc."
-          />
+          <Input id="company" {...register("company")} placeholder="Acme Inc." />
           <FieldError id="company-error" message={errors.company?.message} />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="serviceInterest">
-            Service interest <span className="text-destructive">*</span>
-          </Label>
-          {/* Native select keeps the form fully controlled by react-hook-form */}
-          <select
-            id="serviceInterest"
-            {...register("serviceInterest")}
-            aria-invalid={!!errors.serviceInterest}
-            aria-describedby={
-              errors.serviceInterest ? "service-error" : undefined
-            }
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            defaultValue=""
-          >
-            <option value="" disabled>
-              Select a service…
-            </option>
-            {SERVICE_INTEREST_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-          <FieldError
-            id="service-error"
-            message={errors.serviceInterest?.message}
+          <Label htmlFor="phone">Phone</Label>
+          <Input
+            id="phone"
+            type="tel"
+            {...register("phone")}
+            placeholder="+1 555 123 4567"
           />
+          <FieldError id="phone-error" message={errors.phone?.message} />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="serviceInterest">
+          Service interest <span className="text-destructive">*</span>
+        </Label>
+        {/* Native select keeps the form fully controlled by react-hook-form */}
+        <select
+          id="serviceInterest"
+          {...register("serviceInterest")}
+          aria-invalid={!!errors.serviceInterest}
+          aria-describedby={
+            errors.serviceInterest ? "service-error" : undefined
+          }
+          className="flex h-10 w-full rounded-md border border-border bg-bg-card px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          defaultValue=""
+        >
+          <option value="" disabled>
+            Select a service…
+          </option>
+          {SERVICE_INTEREST_OPTIONS.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+        <FieldError
+          id="service-error"
+          message={errors.serviceInterest?.message}
+        />
       </div>
 
       <div className="space-y-2">
@@ -148,7 +155,13 @@ export function ContactForm() {
         <FieldError id="message-error" message={errors.message?.message} />
       </div>
 
-      <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto">
+      <Button
+        type="submit"
+        size="lg"
+        variant="accent"
+        disabled={isSubmitting}
+        className="w-full sm:w-auto"
+      >
         {isSubmitting ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
