@@ -18,10 +18,10 @@ const config: Config = {
     extend: {
       colors: {
         // ---- Flat brand tokens (spec-mandated class names) ----
-        bg: "#111111",
-        "bg-card": "#1A1A1A",
-        "bg-raised": "#222222",
-        "border-accent": "#00E676",
+        bg: "#FFFFFF",
+        "bg-card": "#FAFAFA",
+        "bg-raised": "#F4F4F4",
+        "border-accent": "#1B1B1B",
 
         // ---- shadcn/ui semantic tokens (HSL vars from globals.css) ----
         border: "hsl(var(--border))",
@@ -53,20 +53,21 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Lime accent — flat hex so `bg-accent`/`text-accent`/`border-accent`
-        // read as the brand green, with a dark foreground for filled CTAs.
+        // Near-black brand accent — flat hex so `bg-accent`/`text-accent`/
+        // `border-accent` read as brand ink, with a white foreground for
+        // filled CTAs.
         accent: {
-          DEFAULT: "#00E676",
-          dim: "#00B85A",
-          glow: "rgba(0, 230, 118, 0.15)",
-          foreground: "#111111",
+          DEFAULT: "#1B1B1B",
+          dim: "#444444",
+          glow: "rgba(27, 27, 27, 0.08)",
+          foreground: "#FFFFFF",
         },
       },
       fontFamily: {
-        display: ["var(--font-poppins)", "system-ui", "sans-serif"],
-        body: ["var(--font-inter)", "system-ui", "sans-serif"],
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        mono: ["var(--font-jetbrains-mono)", "monospace"],
+        display: ["var(--font-montserrat)", "system-ui", "sans-serif"],
+        body: ["var(--font-montserrat)", "system-ui", "sans-serif"],
+        sans: ["var(--font-montserrat)", "system-ui", "sans-serif"],
+        mono: ["var(--font-montserrat)", "system-ui", "sans-serif"],
       },
       fontSize: {
         hero: ["clamp(3rem, 7vw, 6rem)", { lineHeight: "1.02" }],
@@ -83,7 +84,7 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        glow: "0 0 24px 0 rgba(0, 230, 118, 0.18)",
+        glow: "0 0 24px 0 rgba(27, 27, 27, 0.10)",
       },
       keyframes: {
         "accordion-down": {
