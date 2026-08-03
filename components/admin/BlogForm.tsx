@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +19,9 @@ const selectClass =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
 const EXCERPT_HINT = 150;
+
+/* Sentinel value for the "+ Add category…" option; never submitted. */
+const ADD_CATEGORY = "__add_category__";
 
 export type BlogRecord = {
   id: string;
@@ -44,13 +46,18 @@ export function BlogForm({
   const router = useRouter();
   const { toast } = useToast();
 
-  // An imported post may carry a category that was since renamed or
-  // removed; keep it selectable so saving doesn't silently reassign it.
-  const options = React.useMemo(() => {
+  // Held in state so a category added inline shows up immediately. An
+  // imported post may carry a category with no row of its own; keep it
+  // selectable so saving doesn't silently reassign it.
+  const [options, setOptions] = React.useState<string[]>(() => {
     const all = [...categories];
     if (post?.category && !all.includes(post.category)) all.unshift(post.category);
     return all;
-  }, [categories, post?.category]);
+  });
+  const [addingCategory, setAddingCategory] = React.useState(false);
+  const [newCategory, setNewCategory] = React.useState("");
+  const [categoryError, setCategoryError] = React.useState<string | null>(null);
+  const [savingCategory, setSavingCategory] = React.useState(false);
 
   const [coverImage, setCoverImage] = React.useState(post?.coverImage ?? "");
   const [uploading, setUploading] = React.useState(false);
@@ -82,7 +89,44 @@ export function BlogForm({
   const titleReg = register("title");
   const slugReg = register("slug");
   const body = watch("body") ?? "";
+  const categoryValue = watch("category") ?? "";
   const excerptLen = (watch("excerpt") ?? "").length;
+
+  const addCategory = async () => {
+    const name = newCategory.trim();
+    if (name.length < 2) {
+      setCategoryError("Enter a category name.");
+      return;
+    }
+    if (options.some((c) => c.toLowerCase() === name.toLowerCase())) {
+      setCategoryError("That category already exists.");
+      return;
+    }
+
+    setSavingCategory(true);
+    setCategoryError(null);
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Could not add category");
+
+      setOptions((prev) => [...prev, name]);
+      setValue("category", name, { shouldValidate: true });
+      setNewCategory("");
+      setAddingCategory(false);
+      toast({ variant: "success", title: `Added “${name}”` });
+    } catch (err) {
+      setCategoryError(
+        err instanceof Error ? err.message : "Could not add category"
+      );
+    } finally {
+      setSavingCategory(false);
+    }
+  };
 
   const uploadCover = async (file: File) => {
     setUploading(true);
@@ -247,6 +291,21 @@ export function BlogForm({
               id="bf-category"
               className={selectClass}
               {...register("category")}
+              // Controlled: a category added inline is selected in the same
+              // update that appends its <option>, which an uncontrolled
+              // select would drop (the option doesn't exist yet).
+              value={categoryValue}
+              onChange={(e) => {
+                if (e.target.value === ADD_CATEGORY) {
+                  // Reopen on the previous value so the sentinel is never
+                  // submitted if the user cancels.
+                  setValue("category", categoryValue, { shouldValidate: false });
+                  setCategoryError(null);
+                  setAddingCategory(true);
+                  return;
+                }
+                setValue("category", e.target.value, { shouldValidate: true });
+              }}
             >
               {options.length === 0 && <option value="">No categories yet</option>}
               {options.map((c) => (
@@ -254,18 +313,69 @@ export function BlogForm({
                   {c}
                 </option>
               ))}
+              <option disabled>──────────</option>
+              <option value={ADD_CATEGORY}>+ Add category…</option>
             </select>
             <FieldError message={errors.category?.message} />
-            <p className="text-xs text-muted-foreground">
-              Manage the list in{" "}
-              <Link
-                href="/admin/categories"
-                className="underline underline-offset-2 hover:text-foreground"
-              >
-                Categories
-              </Link>
-              .
-            </p>
+
+            {addingCategory && (
+              <div className="rounded-md border border-border bg-bg-raised p-3">
+                <Label htmlFor="bf-new-category" className="text-xs">
+                  New category
+                </Label>
+                <Input
+                  id="bf-new-category"
+                  autoFocus
+                  className="mt-1.5"
+                  placeholder="e.g. Case Studies"
+                  value={newCategory}
+                  onChange={(e) => {
+                    setNewCategory(e.target.value);
+                    setCategoryError(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      // The category field lives inside the post form; let
+                      // Enter add the category, not submit the post.
+                      e.preventDefault();
+                      void addCategory();
+                    }
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      setAddingCategory(false);
+                      setNewCategory("");
+                      setCategoryError(null);
+                    }
+                  }}
+                />
+                <FieldError message={categoryError ?? undefined} />
+                <div className="mt-2 flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => void addCategory()}
+                    disabled={savingCategory}
+                  >
+                    {savingCategory && (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    )}
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setAddingCategory(false);
+                      setNewCategory("");
+                      setCategoryError(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

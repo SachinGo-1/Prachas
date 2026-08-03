@@ -1,7 +1,6 @@
 import {
   LayoutDashboard,
   FileText,
-  Tags,
   Briefcase,
   ClipboardList,
   Inbox,
@@ -20,7 +19,6 @@ export type AdminNavItem = {
 export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/blog", label: "Blog Posts", icon: FileText },
-  { href: "/admin/categories", label: "Categories", icon: Tags },
   { href: "/admin/jobs", label: "Job Postings", icon: Briefcase },
   { href: "/admin/applications", label: "Applications", icon: ClipboardList },
   { href: "/admin/inquiries", label: "Inquiries", icon: Inbox },
