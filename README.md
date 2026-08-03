@@ -119,18 +119,6 @@ Open <http://localhost:3000>.
 
 ---
 
-## Admin login
-
-| Field    | Value               |
-| -------- | ------------------- |
-| URL      | `/admin`            |
-| Email    | `admin@prachas.com` |
-| Password | `Prachas@2024`      |
-
-Visiting `/admin` while signed out redirects to `/admin/login`.
-
----
-
 ## Environment variables
 
 | Variable          | Purpose                                             |
