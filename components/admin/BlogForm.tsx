@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Upload, X } from "lucide-react";
 import { blogSchema, type BlogInput } from "@/lib/validations";
-import { BLOG_CATEGORIES } from "@/lib/constants";
 import { slugify, cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,9 +34,23 @@ export type BlogRecord = {
   status: string;
 };
 
-export function BlogForm({ post }: { post?: BlogRecord | null }) {
+export function BlogForm({
+  post,
+  categories,
+}: {
+  post?: BlogRecord | null;
+  categories: string[];
+}) {
   const router = useRouter();
   const { toast } = useToast();
+
+  // An imported post may carry a category that was since renamed or
+  // removed; keep it selectable so saving doesn't silently reassign it.
+  const options = React.useMemo(() => {
+    const all = [...categories];
+    if (post?.category && !all.includes(post.category)) all.unshift(post.category);
+    return all;
+  }, [categories, post?.category]);
 
   const [coverImage, setCoverImage] = React.useState(post?.coverImage ?? "");
   const [uploading, setUploading] = React.useState(false);
@@ -55,7 +69,7 @@ export function BlogForm({ post }: { post?: BlogRecord | null }) {
     defaultValues: {
       title: post?.title ?? "",
       slug: post?.slug ?? "",
-      category: (post?.category as BlogInput["category"]) ?? BLOG_CATEGORIES[0],
+      category: post?.category ?? categories[0] ?? "",
       excerpt: post?.excerpt ?? "",
       body: post?.body ?? "",
       coverImage: post?.coverImage ?? "",
@@ -234,13 +248,24 @@ export function BlogForm({ post }: { post?: BlogRecord | null }) {
               className={selectClass}
               {...register("category")}
             >
-              {BLOG_CATEGORIES.map((c) => (
+              {options.length === 0 && <option value="">No categories yet</option>}
+              {options.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
               ))}
             </select>
             <FieldError message={errors.category?.message} />
+            <p className="text-xs text-muted-foreground">
+              Manage the list in{" "}
+              <Link
+                href="/admin/categories"
+                className="underline underline-offset-2 hover:text-foreground"
+              >
+                Categories
+              </Link>
+              .
+            </p>
           </div>
 
           <div className="space-y-2">

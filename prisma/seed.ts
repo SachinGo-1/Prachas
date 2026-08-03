@@ -193,6 +193,19 @@ async function main() {
   });
   console.log(`✔ Admin user ready: ${adminEmail} / ${adminPassword}`);
 
+  // --- Blog categories ----------------------------------------------------
+  // Upserted, not wiped, so categories added from the admin portal survive
+  // a re-seed.
+  const CATEGORIES = ["Recruiting", "HR", "Technology", "Industry News"];
+  for (let i = 0; i < CATEGORIES.length; i++) {
+    await prisma.category.upsert({
+      where: { name: CATEGORIES[i] },
+      update: {},
+      create: { name: CATEGORIES[i], displayOrder: i },
+    });
+  }
+  console.log(`✔ Seeded ${CATEGORIES.length} blog categories`);
+
   // --- Blog posts ---------------------------------------------------------
   await prisma.blogPost.deleteMany();
   for (const post of BLOG_POSTS) {

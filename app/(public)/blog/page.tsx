@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { SectionHeading } from "@/components/public/SectionHeading";
 import { BlogCard } from "@/components/public/BlogCard";
 import { prisma } from "@/lib/prisma";
-import { BLOG_FILTERS, BLOG_POSTS_PER_PAGE } from "@/lib/constants";
+import { BLOG_POSTS_PER_PAGE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -41,7 +41,7 @@ export default async function BlogPage({
     ...(category && category !== "All" ? { category } : {}),
   };
 
-  const [total, posts] = await Promise.all([
+  const [total, posts, categoryRows, usedRows] = await Promise.all([
     prisma.blogPost.count({ where }),
     prisma.blogPost.findMany({
       where,
@@ -49,7 +49,24 @@ export default async function BlogPage({
       skip: (page - 1) * BLOG_POSTS_PER_PAGE,
       take: BLOG_POSTS_PER_PAGE,
     }),
+    prisma.category.findMany({
+      orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
+    }),
+    // Imported posts may reference a category that was never created as a
+    // row; surface those too so no published post is unreachable by filter.
+    prisma.blogPost.findMany({
+      where: { status: "published" },
+      distinct: ["category"],
+      select: { category: true },
+    }),
   ]);
+
+  const known = categoryRows.map((c) => c.name);
+  const extra = usedRows
+    .map((r) => r.category)
+    .filter((c) => c && !known.includes(c))
+    .sort();
+  const filters = ["All", ...known, ...extra];
 
   const totalPages = Math.max(1, Math.ceil(total / BLOG_POSTS_PER_PAGE));
 
@@ -68,7 +85,7 @@ export default async function BlogPage({
       <section className="container py-12 sm:py-16">
         {/* Category filter pills */}
         <div className="flex flex-wrap gap-2">
-          {BLOG_FILTERS.map((filter) => {
+          {filters.map((filter) => {
             const active = filter === category;
             return (
               <Link
