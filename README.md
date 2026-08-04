@@ -4,9 +4,11 @@ A modern, fully responsive marketing website and content-managed admin portal
 for **Prachas Technologies**, a Hyderabad-based recruiting, staffing, BPO, and
 consulting firm serving US businesses.
 
-The design is dark and cinematic — **near-black charcoal surfaces with a lime-green
-accent**, Poppins/Inter/JetBrains Mono typography, and a signature lime "scanning
-line" that sweeps across the hero on load (and respects `prefers-reduced-motion`).
+The design is clean and editorial — **white surfaces with near-black `#1b1b1b`
+ink**, set entirely in **Montserrat**, with a signature "scanning line" that
+sweeps across the hero on load (and respects `prefers-reduced-motion`). The
+palette is deliberately monochrome to match the logo, so emphasis comes from
+weight, scale, and rules rather than a second hue.
 
 Built with **Next.js 14 (App Router)**, **TypeScript**, **Tailwind CSS**,
 shadcn/ui-style components, **Prisma** (SQLite in dev, Postgres-ready),
@@ -17,7 +19,7 @@ shadcn/ui-style components, **Prisma** (SQLite in dev, Postgres-ready),
 ## Features
 
 ### Public site (7 pages)
-- **Home** (`/`) — full-viewport hero with the lime scanning-line animation and a
+- **Home** (`/`) — full-viewport hero with the scanning-line animation and a
   static dot grid, stats strip, services teaser, "Why Prachas", an industries tag
   cloud, testimonials, and a CTA banner.
 - **About** (`/about`) — mission statement, milestone timeline, values, a
@@ -49,7 +51,7 @@ shadcn/ui-style components, **Prisma** (SQLite in dev, Postgres-ready),
 
 ### Quality
 - Mobile-first responsive layout (375 / 768 / 1280px).
-- Semantic HTML, ARIA labels, and visible lime focus rings.
+- Semantic HTML, ARIA labels, and visible ink focus rings.
 - All `/admin` routes protected by middleware; unauthenticated users redirect to
   `/admin/login`. Admin APIs return `401` without a session.
 - Emails never block or fail submissions — SMTP has short connect timeouts and
@@ -121,8 +123,9 @@ Open <http://localhost:3000>.
 
 ## Environment variables
 
-| Variable          | Purpose                                             |
-| ----------------- | --------------------------------------------------- |
+| Variable               | Purpose                                        |
+| ---------------------- | ---------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL` | Public origin, used for canonical/OG URLs      |
 | `DATABASE_URL`    | Prisma connection string (`file:./dev.db` for dev)  |
 | `NEXTAUTH_SECRET` | Secret used to sign JWT sessions (**required**)     |
 | `NEXTAUTH_URL`    | App base URL (e.g. `http://localhost:3000`)         |
@@ -153,17 +156,18 @@ Open <http://localhost:3000>.
 Brand tokens live in `app/globals.css` (as CSS custom properties feeding
 shadcn/ui) and `tailwind.config.ts` (flat utility classes):
 
-| Token        | Value     | Usage                          |
-| ------------ | --------- | ------------------------------ |
-| `bg`         | `#111111` | Page background                |
-| `bg-card`    | `#1A1A1A` | Cards / panels                 |
-| `bg-raised`  | `#222222` | Raised surfaces / nav          |
-| `accent`     | `#00E676` | Lime green — primary accent    |
-| `accent-dim` | `#00B85A` | Hover / pressed accent         |
-| `foreground` | `#F0F0F0` | Primary text                   |
-| `border`     | `#2A2A2A` | Subtle borders                 |
+| Token        | Value     | Usage                              |
+| ------------ | --------- | ---------------------------------- |
+| `bg`         | `#FFFFFF` | Page background                    |
+| `bg-card`    | `#FAFAFA` | Cards / panels                     |
+| `bg-raised`  | `#F4F4F4` | Raised surfaces / nav              |
+| `accent`     | `#1B1B1B` | Brand ink — primary accent         |
+| `accent-dim` | `#444444` | Hover / pressed accent             |
+| `foreground` | `#1B1B1B` | Primary text                       |
+| `border`     | `#E4E4E4` | Subtle borders                     |
 
-Fonts: Poppins (`font-display`), Inter (`font-body`), JetBrains Mono (`font-mono`).
+Montserrat is the only typeface: `font-display`, `font-body`, `font-sans`, and
+`font-mono` all resolve to it, so the whole site is set in one family.
 
 ---
 

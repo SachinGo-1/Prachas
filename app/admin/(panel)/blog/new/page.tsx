@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { prisma } from "@/lib/prisma";
 import { BlogForm } from "@/components/admin/BlogForm";
 
-export default function NewBlogPostPage() {
+export const dynamic = "force-dynamic";
+
+export default async function NewBlogPostPage() {
+  const categories = await prisma.category.findMany({
+    orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -17,7 +24,7 @@ export default function NewBlogPostPage() {
           New Post
         </h1>
       </div>
-      <BlogForm />
+      <BlogForm categories={categories.map((c) => c.name)} />
     </div>
   );
 }

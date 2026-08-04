@@ -3,62 +3,58 @@
 @tailwind utilities;
 
 /*
-  Prachas Technologies — brand design system.
-  Dark charcoal surfaces + lime-green accent. Single (dark) theme.
-  Flat brand hexes live in tailwind.config.ts; the HSL custom
-  properties below feed shadcn/ui's semantic tokens so the component
-  library renders natively on the charcoal palette.
+  Prachas — brand design system.
+  White surfaces + near-black ink (#1b1b1b) accent, set in Montserrat.
+  Single (light) theme. Flat brand hexes live in tailwind.config.ts;
+  the HSL custom properties below feed shadcn/ui's semantic tokens so
+  the component library renders natively on the ink palette.
 */
 
 @layer base {
   :root {
+    color-scheme: light;
+
     /* ---- Raw brand tokens (documentation / occasional inline use) ---- */
-    --color-bg: #111111;
-    --color-bg-card: #1a1a1a;
-    --color-bg-raised: #222222;
-    --color-accent: #00e676;
-    --color-accent-dim: #00b85a;
-    --color-accent-glow: rgba(0, 230, 118, 0.15);
-    --color-text: #f0f0f0;
-    --color-text-muted: #888888;
-    --color-border: #2a2a2a;
+    --color-bg: #ffffff;
+    --color-bg-card: #fafafa;
+    --color-bg-raised: #f4f4f4;
+    --color-accent: #1b1b1b;
+    --color-accent-dim: #444444;
+    --color-accent-glow: rgba(27, 27, 27, 0.08);
+    --color-text: #1b1b1b;
+    --color-text-muted: #6b6b6b;
+    --color-border: #e4e4e4;
 
     /* ---- shadcn/ui semantic tokens (HSL channels) ---- */
-    --background: 0 0% 7%; /* #111111 */
-    --foreground: 0 0% 94%; /* #F0F0F0 */
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 0 0% 11%; /* #1B1B1B */
 
-    --card: 0 0% 10%; /* #1A1A1A */
-    --card-foreground: 0 0% 94%;
+    --card: 0 0% 98%; /* #FAFAFA */
+    --card-foreground: 0 0% 11%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 94%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 11%;
 
-    --primary: 151 100% 45%; /* #00E676 */
-    --primary-foreground: 0 0% 7%;
+    --primary: 0 0% 11%; /* #1B1B1B */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 13%; /* #222222 */
-    --secondary-foreground: 0 0% 94%;
+    --secondary: 0 0% 96%; /* #F4F4F4 */
+    --secondary-foreground: 0 0% 11%;
 
-    --muted: 0 0% 13%;
-    --muted-foreground: 0 0% 53%; /* #888888 */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 42%; /* #6B6B6B */
 
-    --accent: 151 100% 45%; /* lime highlight (dropdown/select active) */
-    --accent-foreground: 0 0% 7%;
+    --accent: 0 0% 11%; /* ink highlight (dropdown/select active) */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 16%; /* #2A2A2A */
-    --input: 0 0% 16%;
-    --ring: 151 100% 45%; /* lime focus ring */
+    --border: 0 0% 89%; /* #E4E4E4 */
+    --input: 0 0% 89%;
+    --ring: 0 0% 11%; /* ink focus ring */
 
     --radius: 0.5rem;
-  }
-
-  /* Charcoal palette is the only theme; mirror under .dark so any
-     dark: utilities and class-based toggles resolve identically. */
-  .dark {
-    color-scheme: dark;
   }
 }
 
@@ -85,14 +81,14 @@
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
   ::selection {
-    background: var(--color-accent-glow);
-    color: var(--color-text);
+    background: var(--color-accent);
+    color: var(--color-bg);
   }
 }
 
 @layer components {
   /*
-    Signature scanning line — a thin lime bar that sweeps vertically
+    Signature scanning line — a thin ink bar that sweeps vertically
     across the hero on load, evoking a recruitment/data scan. The
     `animate-scanline` keyframe (tailwind.config) drives `top` from 0
     to 60% of the hero. Reduced-motion users get a static line.
@@ -102,21 +98,22 @@
     left: 0;
     right: 0;
     top: 0;
-    height: 2px;
+    height: 1px;
+    /* On a white canvas a full-strength ink line reads as a hard rule
+       cutting through the headline, so the sweep is a pale grey. */
     background: linear-gradient(
       90deg,
       transparent,
-      var(--color-accent) 20%,
-      var(--color-accent) 80%,
+      #d8d8d8 20%,
+      #d8d8d8 80%,
       transparent
     );
-    box-shadow: 0 0 18px 2px var(--color-accent-glow);
     will-change: top, opacity;
   }
 
   /* Static dot grid behind the hero — subtle, non-animated. */
   .dot-grid {
-    background-image: radial-gradient(#1e1e1e 1.25px, transparent 1.25px);
+    background-image: radial-gradient(#e3e3e3 1.25px, transparent 1.25px);
     background-size: 26px 26px;
     background-position: -13px -13px;
   }
@@ -160,7 +157,7 @@
     @apply rounded bg-secondary px-1.5 py-0.5 font-mono text-sm text-accent;
   }
   .markdown pre {
-    @apply overflow-x-auto rounded-lg border border-border bg-[#0d0d0d] p-4 font-mono text-sm;
+    @apply overflow-x-auto rounded-lg border border-border bg-[#f5f5f5] p-4 font-mono text-sm;
   }
   .markdown pre code {
     @apply bg-transparent p-0 text-foreground/90;
@@ -201,7 +198,7 @@
     /* Keep a static decorative scan line at ~50% of the hero. */
     .scanline {
       top: 50% !important;
-      opacity: 0.5 !important;
+      opacity: 0.6 !important;
     }
     html {
       scroll-behavior: auto;
@@ -209,10 +206,10 @@
   }
 }
 
-/* @uiw/react-md-editor — force its dark theme to match the admin shell. */
-[data-color-mode="dark"] {
-  --color-canvas-default: #1a1a1a;
-  --color-canvas-subtle: #111111;
-  --color-border-default: #2a2a2a;
-  --color-border-muted: #2a2a2a;
+/* @uiw/react-md-editor — align its light theme with the admin shell. */
+[data-color-mode="light"] {
+  --color-canvas-default: #ffffff;
+  --color-canvas-subtle: #fafafa;
+  --color-border-default: #e4e4e4;
+  --color-border-muted: #e4e4e4;
 }

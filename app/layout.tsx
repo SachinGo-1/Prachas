@@ -1,32 +1,20 @@
 import type { Metadata } from "next";
-import { Inter, Poppins, JetBrains_Mono } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { ToastProvider } from "@/components/ui/toast";
 import { SITE } from "@/lib/constants";
 import "./globals.css";
 
-const inter = Inter({
+const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
-  variable: "--font-poppins",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-jetbrains-mono",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-montserrat",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  ),
   title: {
     default: `${SITE.name} — ${SITE.tagline}`,
     template: `%s | ${SITE.name}`,
@@ -57,10 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`dark ${inter.variable} ${poppins.variable} ${jetbrainsMono.variable}`}
-    >
+    <html lang="en" className={montserrat.variable}>
       <body className="min-h-screen bg-background font-body text-foreground antialiased">
         <ToastProvider>{children}</ToastProvider>
       </body>

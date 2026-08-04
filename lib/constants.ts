@@ -282,14 +282,8 @@ export const HIRING_STEPS = [
 /* Enumerations                                                                */
 /* -------------------------------------------------------------------------- */
 
-export const BLOG_CATEGORIES = [
-  "Recruiting",
-  "HR",
-  "Technology",
-  "Industry News",
-] as const;
-
-export const BLOG_FILTERS = ["All", ...BLOG_CATEGORIES] as const;
+/* Blog categories are admin-managed rows in the Category table, not a
+   constant — see /admin/categories. The initial four are seeded. */
 
 export const JOB_DEPARTMENTS = [
   "Recruiting",

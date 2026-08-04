@@ -58,22 +58,22 @@ export async function sendEmail({ to, subject, html, replyTo, cc }: SendArgs) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* HTML templates — dark charcoal + lime green, matching the brand.            */
+/* HTML templates — white + near-black ink, matching the brand.                */
 /* -------------------------------------------------------------------------- */
 
-const BG = "#111111";
-const CARD = "#1a1a1a";
-const ACCENT = "#00e676";
-const TEXT = "#f0f0f0";
-const MUTED = "#888888";
-const BORDER = "#2a2a2a";
+const BG = "#f4f4f4";
+const CARD = "#ffffff";
+const ACCENT = "#1b1b1b";
+const TEXT = "#1b1b1b";
+const MUTED = "#6b6b6b";
+const BORDER = "#e4e4e4";
 
 function shell(title: string, inner: string) {
   return `
-  <div style="background:${BG};padding:32px 0;font-family:Inter,Arial,sans-serif;">
+  <div style="background:${BG};padding:32px 0;font-family:Montserrat,Arial,sans-serif;">
     <div style="max-width:560px;margin:0 auto;background:${CARD};border:1px solid ${BORDER};border-radius:12px;overflow:hidden;">
       <div style="border-top:3px solid ${ACCENT};padding:28px 32px 8px;">
-        <p style="margin:0;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${ACCENT};">Prachas Technologies</p>
+        <p style="margin:0;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${ACCENT};">Prachas Technologies</p>
         <h1 style="margin:8px 0 0;font-size:20px;color:${TEXT};">${escapeHtml(title)}</h1>
       </div>
       <div style="padding:8px 32px 28px;color:${TEXT};font-size:14px;line-height:1.7;">
