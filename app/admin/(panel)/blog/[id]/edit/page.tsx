@@ -11,7 +11,12 @@ export default async function EditBlogPostPage({
 }: {
   params: { id: string };
 }) {
-  const post = await prisma.blogPost.findUnique({ where: { id: params.id } });
+  const [post, categories] = await Promise.all([
+    prisma.blogPost.findUnique({ where: { id: params.id } }),
+    prisma.category.findMany({
+      orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
+    }),
+  ]);
   if (!post) notFound();
 
   const record: BlogRecord = {
@@ -41,7 +46,7 @@ export default async function EditBlogPostPage({
           Edit Post
         </h1>
       </div>
-      <BlogForm post={record} />
+      <BlogForm post={record} categories={categories.map((c) => c.name)} />
     </div>
   );
 }

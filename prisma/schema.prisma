@@ -81,6 +81,13 @@ model Inquiry {
   createdAt       DateTime @default(now())
 }
 
+model Category {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
 model Service {
   id           String @id @default(cuid())
   slug         String @unique

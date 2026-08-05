@@ -13,7 +13,7 @@ export function MarkdownEditor({
   onChange: (v: string) => void;
 }) {
   return (
-    <div data-color-mode="dark">
+    <div data-color-mode="light">
       <MDEditor
         value={value}
         onChange={(v) => onChange(v || "")}

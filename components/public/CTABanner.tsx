@@ -15,11 +15,7 @@ export function CTABanner({
 }) {
   return (
     <section className="container">
-      <div className="relative overflow-hidden rounded-2xl border-l-4 border-accent bg-bg-card px-6 py-12 sm:px-12 sm:py-16">
-        <div
-          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-accent/10 blur-3xl"
-          aria-hidden
-        />
+      <div className="relative overflow-hidden rounded-2xl border border-border border-l-4 border-l-accent bg-bg-card px-6 py-12 sm:px-12 sm:py-16">
         <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
           <div className="max-w-xl">
             <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">

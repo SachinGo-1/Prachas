@@ -7,11 +7,6 @@ export function HeroSection() {
     <section className="relative flex min-h-[calc(100vh-5rem)] items-center overflow-hidden bg-bg">
       {/* Static dot grid */}
       <div className="absolute inset-0 dot-grid opacity-70" aria-hidden />
-      {/* Ambient lime glow, top-right */}
-      <div
-        className="pointer-events-none absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-accent/10 blur-[120px]"
-        aria-hidden
-      />
       {/* Signature scanning line — sweeps to 60% of the hero on load */}
       <div className="scanline animate-scanline" aria-hidden />
       {/* Fade to page bg at the bottom */}
@@ -28,7 +23,10 @@ export function HeroSection() {
 
           <h1 className="mt-8 font-display text-hero font-extrabold tracking-tight text-foreground">
             Where Indian Talent Meets{" "}
-            <span className="text-accent">American Ambition</span>
+            {/* Monochrome brand: emphasis is an underline, not a hue shift. */}
+            <span className="decoration-4 underline decoration-accent underline-offset-[0.15em]">
+              American Ambition
+            </span>
           </h1>
 
           <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">

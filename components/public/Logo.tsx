@@ -1,16 +1,20 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Prachas Technologies logo.
+ * Prachas logo.
  *
- * The mark is an abstract, geometric interpretation of the brand's
- * "two people meeting over a table" motif — two figures (a reaching
- * figure and a standing figure) above a connecting baseline — rendered
- * entirely as inline SVG in lime green, so no image asset is required.
+ * The mark is the brand's "two people meeting over a table" motif —
+ * a larger foreground figure and a smaller companion drawn in outline
+ * behind a table with an angled leg — rendered as inline SVG in brand
+ * ink, so no image asset is required.
  *
  *   variant="stacked"     icon above the wordmark (hero / footer)
  *   variant="horizontal"  icon left, wordmark + sub-label stacked right (navbar)
  *   variant="icon"        the mark only
+ *
+ * Both the mark and the wordmark inherit `currentColor`, so the logo
+ * renders correctly on the ink admin sidebar as well as on white — put
+ * it inside a text-coloured container rather than passing a colour in.
  */
 export function LogoMark({ className }: { className?: string }) {
   return (
@@ -18,28 +22,38 @@ export function LogoMark({ className }: { className?: string }) {
       viewBox="0 0 64 56"
       role="img"
       aria-hidden="true"
-      className={cn("text-accent", className)}
+      className={className}
+      fill="none"
     >
-      {/* Left figure — head + reaching shoulder */}
-      <circle cx="20" cy="14" r="8" fill="currentColor" />
+      {/* Left figure — outlined head + shoulders passing behind the table */}
+      <circle cx="24" cy="11" r="6.5" stroke="currentColor" strokeWidth="5" />
       <path
-        d="M8 44 C8 30 12 23 20 23 C27 23 31 29 31 37"
+        d="M13 41 C13 26 17 21.5 24 21.5 C31 21.5 35 26 35 36"
         stroke="currentColor"
-        strokeWidth="6"
+        strokeWidth="5"
         strokeLinecap="round"
-        fill="none"
       />
-      {/* Right figure — head + standing shoulder */}
-      <circle cx="45" cy="11" r="8" fill="currentColor" />
+      {/* Right figure — smaller outlined head + shoulders */}
+      <circle cx="45" cy="9" r="5" stroke="currentColor" strokeWidth="5" />
       <path
-        d="M56 44 C56 27 52 21 45 21 C40 21 36 25 35 30"
+        d="M37 27 C37 19.5 40 17 45 17 C50 17 53 19.5 53 27"
         stroke="currentColor"
-        strokeWidth="6"
+        strokeWidth="5"
         strokeLinecap="round"
-        fill="none"
       />
-      {/* Connecting baseline */}
-      <rect x="5" y="43" width="54" height="6" rx="3" fill="currentColor" />
+      {/* Table top + angled leg */}
+      <path
+        d="M6 29.5 L58 29.5"
+        stroke="currentColor"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M23 32 L15 50"
+        stroke="currentColor"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -62,11 +76,11 @@ export function Logo({
       <span className={cn("inline-flex flex-col items-center gap-3", className)}>
         <LogoMark className="h-14 w-14" />
         <span className="flex flex-col items-center leading-none">
-          <span className="font-display text-2xl font-bold tracking-tight text-foreground">
+          <span className="font-display text-2xl font-bold tracking-[0.12em]">
             PRACHAS
           </span>
           {showSubLabel && (
-            <span className="mt-1.5 font-mono text-[0.62rem] uppercase tracking-wider2 text-muted-foreground">
+            <span className="mt-1.5 text-[0.62rem] uppercase tracking-wider2 opacity-60">
               Technologies
             </span>
           )}
@@ -80,11 +94,11 @@ export function Logo({
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <LogoMark className="h-9 w-9 shrink-0" />
       <span className="flex flex-col leading-none">
-        <span className="font-display text-lg font-bold tracking-tight text-foreground">
+        <span className="font-display text-lg font-bold tracking-[0.12em]">
           PRACHAS
         </span>
         {showSubLabel && (
-          <span className="mt-0.5 font-mono text-[0.55rem] uppercase tracking-wider2 text-muted-foreground">
+          <span className="mt-0.5 text-[0.55rem] uppercase tracking-wider2 opacity-60">
             Technologies
           </span>
         )}

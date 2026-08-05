@@ -4,7 +4,6 @@ import {
   JOB_STATUSES,
   EMPLOYMENT_TYPES,
   APPLICATION_STATUSES,
-  BLOG_CATEGORIES,
   JOB_DEPARTMENTS,
 } from "@/lib/constants";
 
@@ -61,7 +60,9 @@ export const blogSchema = z.object({
     .min(2, "Slug is required")
     .max(200)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens"),
-  category: z.enum(BLOG_CATEGORIES),
+  // Categories are admin-managed rows, not a fixed enum — the form's
+  // options come from the DB, so this only guards shape.
+  category: z.string().min(1, "Category is required").max(80),
   excerpt: z.string().min(10, "Excerpt is required").max(300),
   body: z.string().min(10, "Body is required").max(50000),
   coverImage: optionalString(500),
@@ -98,3 +99,9 @@ export const teamMemberSchema = z.object({
   displayOrder: z.coerce.number().int().min(0).max(9999).optional(),
 });
 export type TeamMemberInput = z.infer<typeof teamMemberSchema>;
+
+export const categorySchema = z.object({
+  name: z.string().min(2, "Name is required").max(80),
+  displayOrder: z.coerce.number().int().min(0).max(9999).optional(),
+});
+export type CategoryInput = z.infer<typeof categorySchema>;

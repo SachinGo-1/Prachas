@@ -26,9 +26,11 @@ export function Sidebar({
       .join("")
       .toUpperCase() || "A";
 
+  // Ink sidebar: an inverted island in an otherwise white UI, so its
+  // text/border colours are explicit whites rather than theme tokens.
   return (
-    <div className="flex h-full flex-col border-r border-border bg-[#0D0D0D] text-muted-foreground">
-      <div className="flex h-20 items-center border-b border-border px-5">
+    <div className="flex h-full flex-col bg-accent text-white/70">
+      <div className="flex h-20 items-center border-b border-white/10 px-5">
         <Logo variant="horizontal" />
       </div>
 
@@ -48,13 +50,13 @@ export function Sidebar({
               className={cn(
                 "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 active
-                  ? "bg-accent/10 text-accent"
-                  : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                  ? "bg-white/10 text-white"
+                  : "text-white/60 hover:bg-white/5 hover:text-white"
               )}
             >
               {active && (
                 <span
-                  className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-accent"
+                  className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-white"
                   aria-hidden
                 />
               )}
@@ -65,32 +67,32 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="border-t border-border p-3">
+      <div className="border-t border-white/10 p-3">
         <Link
           href="/"
           target="_blank"
-          className="mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+          className="mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-white/60 transition-colors hover:bg-white/5 hover:text-white"
         >
           <ExternalLink className="h-4 w-4" />
           View public site
         </Link>
         <div className="flex items-center gap-3 rounded-lg px-3 py-2">
           <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-accent text-accent-foreground">
+            <AvatarFallback className="bg-white font-semibold text-accent">
               {initials}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-foreground">
+            <p className="truncate text-sm font-medium text-white">
               {user.name || "Admin"}
             </p>
-            <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+            <p className="truncate text-xs text-white/50">{user.email}</p>
           </div>
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/admin/login" })}
             aria-label="Sign out"
-            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-md p-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             <LogOut className="h-4 w-4" />
           </button>
