@@ -29,25 +29,43 @@ export async function POST(req: Request) {
     );
   }
 
-  const { coverImage, tags, status, ...rest } = parsed.data;
+  const { coverImage, tags, status, categories, ...rest } = parsed.data;
 
-  // Slugs must be unique — surface a 409 the form can map onto the field.
-  const existing = await prisma.blogPost.findUnique({
-    where: { slug: parsed.data.slug },
-  });
-  if (existing) {
-    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  try {
+    // Slugs must be unique — surface a 409 the form can map onto the field.
+    const existing = await prisma.blogPost.findUnique({
+      where: { slug: parsed.data.slug },
+    });
+    if (existing) {
+      return NextResponse.json(
+        { error: "Slug already in use" },
+        { status: 409 }
+      );
+    }
+
+    const post = await prisma.blogPost.create({
+      data: {
+        ...rest,
+        coverImage: coverImage || null,
+        tags: tags ?? "",
+        status,
+        publishedAt: status === "published" ? new Date() : null,
+        categories: {
+          connectOrCreate: categories.map((name) => ({
+            where: { name },
+            create: { name },
+          })),
+        },
+      },
+      include: { categories: true },
+    });
+
+    return NextResponse.json({ post }, { status: 201 });
+  } catch (err) {
+    console.error("[blog] create failed:", err);
+    return NextResponse.json(
+      { error: "Could not create the post." },
+      { status: 500 }
+    );
   }
-
-  const post = await prisma.blogPost.create({
-    data: {
-      ...rest,
-      coverImage: coverImage || null,
-      tags: tags ?? "",
-      status,
-      publishedAt: status === "published" ? new Date() : null,
-    },
-  });
-
-  return NextResponse.json({ post }, { status: 201 });
 }

@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Plus, Trash2, Upload, X } from "lucide-react";
 import { blogSchema, type BlogInput } from "@/lib/validations";
 import { slugify, cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -20,14 +20,13 @@ const selectClass =
 
 const EXCERPT_HINT = 150;
 
-/* Sentinel value for the "+ Add category…" option; never submitted. */
-const ADD_CATEGORY = "__add_category__";
+export type CategoryOption = { id: string; name: string };
 
 export type BlogRecord = {
   id: string;
   title: string;
   slug: string;
-  category: string;
+  categories: string[];
   excerpt: string;
   body: string;
   coverImage: string | null;
@@ -41,23 +40,26 @@ export function BlogForm({
   categories,
 }: {
   post?: BlogRecord | null;
-  categories: string[];
+  categories: CategoryOption[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
 
-  // Held in state so a category added inline shows up immediately. An
-  // imported post may carry a category with no row of its own; keep it
-  // selectable so saving doesn't silently reassign it.
-  const [options, setOptions] = React.useState<string[]>(() => {
+  // Held in state so a category added inline shows up immediately. A post
+  // may carry a category with no row of its own (an import), so keep it
+  // listed rather than dropping it silently on save.
+  const [options, setOptions] = React.useState<CategoryOption[]>(() => {
     const all = [...categories];
-    if (post?.category && !all.includes(post.category)) all.unshift(post.category);
+    for (const name of post?.categories ?? []) {
+      if (!all.some((c) => c.name === name)) all.unshift({ id: `orphan:${name}`, name });
+    }
     return all;
   });
   const [addingCategory, setAddingCategory] = React.useState(false);
   const [newCategory, setNewCategory] = React.useState("");
   const [categoryError, setCategoryError] = React.useState<string | null>(null);
   const [savingCategory, setSavingCategory] = React.useState(false);
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
   const [coverImage, setCoverImage] = React.useState(post?.coverImage ?? "");
   const [uploading, setUploading] = React.useState(false);
@@ -76,7 +78,7 @@ export function BlogForm({
     defaultValues: {
       title: post?.title ?? "",
       slug: post?.slug ?? "",
-      category: post?.category ?? categories[0] ?? "",
+      categories: post?.categories ?? [],
       excerpt: post?.excerpt ?? "",
       body: post?.body ?? "",
       coverImage: post?.coverImage ?? "",
@@ -89,8 +91,15 @@ export function BlogForm({
   const titleReg = register("title");
   const slugReg = register("slug");
   const body = watch("body") ?? "";
-  const categoryValue = watch("category") ?? "";
+  const selected = watch("categories") ?? [];
   const excerptLen = (watch("excerpt") ?? "").length;
+
+  const toggleCategory = (name: string) => {
+    const next = selected.includes(name)
+      ? selected.filter((c) => c !== name)
+      : [...selected, name];
+    setValue("categories", next, { shouldValidate: true });
+  };
 
   const addCategory = async () => {
     const name = newCategory.trim();
@@ -98,7 +107,7 @@ export function BlogForm({
       setCategoryError("Enter a category name.");
       return;
     }
-    if (options.some((c) => c.toLowerCase() === name.toLowerCase())) {
+    if (options.some((c) => c.name.toLowerCase() === name.toLowerCase())) {
       setCategoryError("That category already exists.");
       return;
     }
@@ -114,8 +123,8 @@ export function BlogForm({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Could not add category");
 
-      setOptions((prev) => [...prev, name]);
-      setValue("category", name, { shouldValidate: true });
+      setOptions((prev) => [...prev, { id: data.category.id, name }]);
+      setValue("categories", [...selected, name], { shouldValidate: true });
       setNewCategory("");
       setAddingCategory(false);
       toast({ variant: "success", title: `Added “${name}”` });
@@ -125,6 +134,36 @@ export function BlogForm({
       );
     } finally {
       setSavingCategory(false);
+    }
+  };
+
+  const deleteCategory = async (cat: CategoryOption) => {
+    setDeletingId(cat.id);
+    setCategoryError(null);
+    try {
+      const res = await fetch(`/api/admin/categories/${cat.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Could not delete category");
+
+      setOptions((prev) => prev.filter((c) => c.id !== cat.id));
+      setValue(
+        "categories",
+        selected.filter((c) => c !== cat.name),
+        { shouldValidate: true }
+      );
+      toast({ variant: "success", title: `Deleted “${cat.name}”` });
+    } catch (err) {
+      // Not setCategoryError: that only renders inside the add-category
+      // panel, which is closed during a delete, so it would fail silently.
+      toast({
+        variant: "error",
+        title: "Could not delete category",
+        description: err instanceof Error ? err.message : undefined,
+      });
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -284,39 +323,88 @@ export function BlogForm({
         {/* Sidebar column */}
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="bf-category">
-              Category <span className="text-destructive">*</span>
-            </Label>
-            <select
-              id="bf-category"
-              className={selectClass}
-              {...register("category")}
-              // Controlled: a category added inline is selected in the same
-              // update that appends its <option>, which an uncontrolled
-              // select would drop (the option doesn't exist yet).
-              value={categoryValue}
-              onChange={(e) => {
-                if (e.target.value === ADD_CATEGORY) {
-                  // Reopen on the previous value so the sentinel is never
-                  // submitted if the user cancels.
-                  setValue("category", categoryValue, { shouldValidate: false });
+            <span className="text-sm font-medium leading-none">
+              Categories <span className="text-destructive">*</span>
+            </span>
+
+            {/* Selected, each removable */}
+            {selected.length > 0 && (
+              <ul className="flex flex-wrap gap-1.5 pt-1">
+                {selected.map((name) => (
+                  <li key={name}>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-accent py-1 pl-3 pr-1 text-xs font-medium text-accent-foreground">
+                      {name}
+                      <button
+                        type="button"
+                        onClick={() => toggleCategory(name)}
+                        aria-label={`Remove ${name}`}
+                        className="rounded-full p-0.5 transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {/* Full list — tick to apply, trash to delete outright */}
+            <ul
+              className="max-h-56 space-y-0.5 overflow-y-auto rounded-md border border-border p-1"
+              aria-label="Categories"
+            >
+              {options.length === 0 && (
+                <li className="px-2 py-3 text-center text-xs text-muted-foreground">
+                  No categories yet — add one below.
+                </li>
+              )}
+              {options.map((c) => {
+                const checked = selected.includes(c.name);
+                return (
+                  <li key={c.id} className="flex items-center gap-1">
+                    <label className="flex flex-1 cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-bg-raised">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleCategory(c.name)}
+                        className="h-4 w-4 rounded border-border accent-accent"
+                      />
+                      <span className="truncate">{c.name}</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => void deleteCategory(c)}
+                      disabled={deletingId === c.id}
+                      aria-label={`Delete category ${c.name}`}
+                      title={`Delete “${c.name}” everywhere`}
+                      className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-bg-raised hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                    >
+                      {deletingId === c.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <FieldError message={errors.categories?.message} />
+            {!addingCategory && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
                   setCategoryError(null);
                   setAddingCategory(true);
-                  return;
-                }
-                setValue("category", e.target.value, { shouldValidate: true });
-              }}
-            >
-              {options.length === 0 && <option value="">No categories yet</option>}
-              {options.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-              <option disabled>──────────</option>
-              <option value={ADD_CATEGORY}>+ Add category…</option>
-            </select>
-            <FieldError message={errors.category?.message} />
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Add category
+              </Button>
+            )}
 
             {addingCategory && (
               <div className="rounded-md border border-border bg-bg-raised p-3">

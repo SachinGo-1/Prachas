@@ -5,7 +5,7 @@ import { formatDate } from "@/lib/utils";
 export type BlogCardData = {
   slug: string;
   title: string;
-  category: string;
+  categories: { name: string }[];
   excerpt: string;
   coverImage: string | null;
   author: string;
@@ -39,8 +39,8 @@ export function BlogCard({ post }: { post: BlogCardData }) {
       </div>
 
       <div className="flex flex-1 flex-col p-6">
-        <span className="font-mono text-xs uppercase tracking-label text-accent">
-          {post.category}
+        <span className="text-xs uppercase tracking-label text-accent">
+          {post.categories.map((c) => c.name).join(" · ")}
         </span>
         <h3 className="mt-3 font-display text-lg font-semibold leading-snug text-foreground">
           {post.title}

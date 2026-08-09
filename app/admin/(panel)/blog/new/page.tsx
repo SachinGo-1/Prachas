@@ -24,7 +24,9 @@ export default async function NewBlogPostPage() {
           New Post
         </h1>
       </div>
-      <BlogForm categories={categories.map((c) => c.name)} />
+      <BlogForm
+        categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+      />
     </div>
   );
 }

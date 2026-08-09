@@ -22,10 +22,10 @@ model User {
 }
 
 model BlogPost {
-  id          String    @id @default(cuid())
+  id          String     @id @default(cuid())
   title       String
-  slug        String    @unique
-  category    String // Recruiting | HR | Technology | Industry News
+  slug        String     @unique
+  categories  Category[]
   excerpt     String
   body        String // markdown
   coverImage  String?
@@ -82,10 +82,11 @@ model Inquiry {
 }
 
 model Category {
-  id           String   @id @default(cuid())
-  name         String   @unique
-  displayOrder Int      @default(0)
-  createdAt    DateTime @default(now())
+  id           String     @id @default(cuid())
+  name         String     @unique
+  displayOrder Int        @default(0)
+  createdAt    DateTime   @default(now())
+  posts        BlogPost[]
 }
 
 model Service {
