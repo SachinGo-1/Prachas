@@ -12,7 +12,10 @@ export default async function EditBlogPostPage({
   params: { id: string };
 }) {
   const [post, categories] = await Promise.all([
-    prisma.blogPost.findUnique({ where: { id: params.id } }),
+    prisma.blogPost.findUnique({
+      where: { id: params.id },
+      include: { categories: { select: { name: true } } },
+    }),
     prisma.category.findMany({
       orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
     }),
@@ -23,7 +26,7 @@ export default async function EditBlogPostPage({
     id: post.id,
     title: post.title,
     slug: post.slug,
-    category: post.category,
+    categories: post.categories.map((c) => c.name),
     excerpt: post.excerpt,
     body: post.body,
     coverImage: post.coverImage,
@@ -46,7 +49,10 @@ export default async function EditBlogPostPage({
           Edit Post
         </h1>
       </div>
-      <BlogForm post={record} categories={categories.map((c) => c.name)} />
+      <BlogForm
+        post={record}
+        categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+      />
     </div>
   );
 }

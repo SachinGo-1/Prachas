@@ -36,35 +36,56 @@ export async function PUT(req: Request, { params }: Params) {
     );
   }
 
-  const { coverImage, tags, status, slug, ...rest } = parsed.data;
+  const { coverImage, tags, status, slug, categories, ...rest } = parsed.data;
 
-  // If the slug changed, make sure it isn't taken by another post.
-  if (slug !== existing.slug) {
-    const dupe = await prisma.blogPost.findUnique({ where: { slug } });
-    if (dupe && dupe.id !== existing.id) {
-      return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  try {
+    // If the slug changed, make sure it isn't taken by another post.
+    if (slug !== existing.slug) {
+      const dupe = await prisma.blogPost.findUnique({ where: { slug } });
+      if (dupe && dupe.id !== existing.id) {
+        return NextResponse.json(
+          { error: "Slug already in use" },
+          { status: 409 }
+        );
+      }
     }
+
+    // Stamp publishedAt the first time a post goes live; keep it thereafter.
+    let publishedAt = existing.publishedAt;
+    if (status === "published" && !existing.publishedAt) {
+      publishedAt = new Date();
+    }
+
+    const post = await prisma.blogPost.update({
+      where: { id: params.id },
+      data: {
+        ...rest,
+        slug,
+        coverImage: coverImage || null,
+        tags: tags ?? "",
+        status,
+        publishedAt,
+        categories: {
+          // `set: []` first, so categories removed in the form are actually
+          // unlinked rather than merged with the existing ones.
+          set: [],
+          connectOrCreate: categories.map((name) => ({
+            where: { name },
+            create: { name },
+          })),
+        },
+      },
+      include: { categories: true },
+    });
+
+    return NextResponse.json({ post });
+  } catch (err) {
+    console.error("[blog] update failed:", err);
+    return NextResponse.json(
+      { error: "Could not update the post." },
+      { status: 500 }
+    );
   }
-
-  // Stamp publishedAt the first time a post goes live; keep it thereafter.
-  let publishedAt = existing.publishedAt;
-  if (status === "published" && !existing.publishedAt) {
-    publishedAt = new Date();
-  }
-
-  const post = await prisma.blogPost.update({
-    where: { id: params.id },
-    data: {
-      ...rest,
-      slug,
-      coverImage: coverImage || null,
-      tags: tags ?? "",
-      status,
-      publishedAt,
-    },
-  });
-
-  return NextResponse.json({ post });
 }
 
 export async function DELETE(_req: Request, { params }: Params) {

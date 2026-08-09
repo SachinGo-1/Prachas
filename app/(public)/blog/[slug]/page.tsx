@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 async function getPost(slug: string) {
   return prisma.blogPost.findFirst({
     where: { slug, status: "published" },
+    include: { categories: { select: { name: true } } },
   });
 }
 
@@ -52,8 +53,8 @@ export default async function BlogPostPage({
         </Link>
 
         <header className="mt-8">
-          <span className="font-mono text-xs uppercase tracking-label text-accent">
-            {post.category}
+          <span className="text-xs uppercase tracking-label text-accent">
+            {post.categories.map((c) => c.name).join(" · ")}
           </span>
           <h1 className="mt-4 font-display text-display font-bold tracking-tight text-foreground">
             {post.title}

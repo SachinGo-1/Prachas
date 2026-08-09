@@ -20,7 +20,7 @@ import { formatDate } from "@/lib/utils";
 export type BlogRow = {
   id: string;
   title: string;
-  category: string;
+  categories: string[];
   author: string;
   status: string;
   publishedAt: string | null;
@@ -84,7 +84,7 @@ export function BlogsManager({ posts }: { posts: BlogRow[] }) {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Title</TableHead>
-              <TableHead className="hidden sm:table-cell">Category</TableHead>
+              <TableHead className="hidden sm:table-cell">Categories</TableHead>
               <TableHead className="hidden md:table-cell">Author</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="hidden lg:table-cell">Published</TableHead>
@@ -109,11 +109,11 @@ export function BlogsManager({ posts }: { posts: BlogRow[] }) {
                       {post.title}
                     </div>
                     <div className="text-xs text-muted-foreground sm:hidden">
-                      {post.category}
+                      {post.categories.join(", ")}
                     </div>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell text-muted-foreground">
-                    {post.category}
+                    {post.categories.join(", ")}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-muted-foreground">
                     {post.author}

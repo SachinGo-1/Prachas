@@ -38,35 +38,28 @@ export default async function BlogPage({
 
   const where = {
     status: "published",
-    ...(category && category !== "All" ? { category } : {}),
+    ...(category && category !== "All"
+      ? { categories: { some: { name: category } } }
+      : {}),
   };
 
-  const [total, posts, categoryRows, usedRows] = await Promise.all([
+  const [total, posts, categoryRows] = await Promise.all([
     prisma.blogPost.count({ where }),
     prisma.blogPost.findMany({
       where,
       orderBy: { publishedAt: "desc" },
       skip: (page - 1) * BLOG_POSTS_PER_PAGE,
       take: BLOG_POSTS_PER_PAGE,
+      include: { categories: { select: { name: true } } },
     }),
     prisma.category.findMany({
       orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
-    }),
-    // Imported posts may reference a category that was never created as a
-    // row; surface those too so no published post is unreachable by filter.
-    prisma.blogPost.findMany({
-      where: { status: "published" },
-      distinct: ["category"],
-      select: { category: true },
+      // Only offer filters that would actually return something.
+      where: { posts: { some: { status: "published" } } },
     }),
   ]);
 
-  const known = categoryRows.map((c) => c.name);
-  const extra = usedRows
-    .map((r) => r.category)
-    .filter((c) => c && !known.includes(c))
-    .sort();
-  const filters = ["All", ...known, ...extra];
+  const filters = ["All", ...categoryRows.map((c) => c.name)];
 
   const totalPages = Math.max(1, Math.ceil(total / BLOG_POSTS_PER_PAGE));
 

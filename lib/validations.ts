@@ -62,7 +62,10 @@ export const blogSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens"),
   // Categories are admin-managed rows, not a fixed enum — the form's
   // options come from the DB, so this only guards shape.
-  category: z.string().min(1, "Category is required").max(80),
+  categories: z
+    .array(z.string().min(1).max(80))
+    .min(1, "Pick at least one category")
+    .max(20),
   excerpt: z.string().min(10, "Excerpt is required").max(300),
   body: z.string().min(10, "Body is required").max(50000),
   coverImage: optionalString(500),

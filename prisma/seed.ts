@@ -91,7 +91,7 @@ const BLOG_POSTS = [
   {
     title: "How to Hire Remote Developers from India",
     slug: "how-to-hire-remote-developers-from-india",
-    category: "Recruiting",
+    categories: ["Recruiting"],
     author: "Priya Sharma",
     tags: "remote hiring, developers, india, staffing",
     excerpt:
@@ -124,7 +124,7 @@ Set a few hours of daily overlap with US business hours. That overlap is where c
   {
     title: "Top Staffing Trends for 2024",
     slug: "top-staffing-trends-2024",
-    category: "Industry News",
+    categories: ["Industry News"],
     author: "Vikram Nair",
     tags: "staffing, trends, 2024, workforce",
     excerpt:
@@ -150,7 +150,7 @@ The winning model pairs global talent with local-hours collaboration. Time-zone 
   {
     title: "Why US Companies Choose Hyderabad",
     slug: "why-us-companies-choose-hyderabad",
-    category: "Technology",
+    categories: ["Technology"],
     author: "Ananya Rao",
     tags: "hyderabad, offshore, technology, delivery",
     excerpt:
@@ -209,10 +209,19 @@ async function main() {
   // --- Blog posts ---------------------------------------------------------
   await prisma.blogPost.deleteMany();
   for (const post of BLOG_POSTS) {
-    const { daysAgo, ...rest } = post;
+    const { daysAgo, categories, ...rest } = post;
     const publishedAt = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
     await prisma.blogPost.create({
-      data: { ...rest, publishedAt },
+      data: {
+        ...rest,
+        publishedAt,
+        categories: {
+          connectOrCreate: categories.map((name) => ({
+            where: { name },
+            create: { name },
+          })),
+        },
+      },
     });
   }
   console.log(`✔ Seeded ${BLOG_POSTS.length} blog posts`);
